@@ -285,6 +285,15 @@ ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) +
   facet_grid(. ~ income, labeller=income_labeller)
 ```
 
+## Design Plan
+
+1. Histogram showing the relative frequency of views on the future.
+
+2. Future vs. Income stacked bar plot. People with higher income are more positive about the future.
+
+3. Animating histogram showing the relative frequency of views on each technology.
+You can interactively select a technology and see how the views change.
+
 
 
 
