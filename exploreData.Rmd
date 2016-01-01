@@ -208,4 +208,83 @@ ggplot(aes(x=factor(sex),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position
                            labels=c("Better", "Worse", "Don't know", "Refused"))
 ```
 
+## View on Technology vs. Sex
+```{r 3-sex}
+mf_labeller <- function(var, value){
+    value <- as.character(value)
+    if (var=="sex") { 
+        value[value==1] <- "Male"
+        value[value==2]   <- "Female"
+    }
+    return(value)
+}
+
+ggplot(aes(x=as.ordered(pial3a), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Lifelike robots are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+ggplot(aes(x=as.ordered(pial3b), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Drones are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+ggplot(aes(x=as.ordered(pial3c), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Wearable devices are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Altering DNA is a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+```
+
+## View on Technology vs. Income
+```{r 3-income}
+income_labeller <- function(var, value){
+    value <- as.character(value)
+    if (var=="income") { 
+        value[value==1] <- "< $30K"
+        value[value==2]   <- "$30-49.4K"
+        value[value==3] <- "$50-74.9K"
+        value[value==4]   <- "75K+"
+        value[value==9]   <- "Refused"
+    }
+    return(value)
+}
+
+ggplot(aes(x=as.ordered(pial3a), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Lifelike robots are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+ggplot(aes(x=as.ordered(pial3b), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Drones are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+ggplot(aes(x=as.ordered(pial3c), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Wearable devices are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Altering DNA is a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+```
+
+
+
 
