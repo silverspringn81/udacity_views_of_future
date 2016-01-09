@@ -97,9 +97,6 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 				svg.append("g")
 								.attr("class", "y axis")
 								.call(yAxis)
-								.append("text")
-								.attr("transform", "rotate(-90)")
-								.attr("y", 6);
 				
 				svg.selectAll(".bar")
 								.data(nested)
