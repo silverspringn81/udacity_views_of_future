@@ -55,8 +55,7 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 				if (error) throw error;
 
 				function agg_pial1a(leaves) {
-								//console.log(leaves)
-				        var count = leaves.length;
+								var count = leaves.length;
 								return {
 												'frequency': count,
 								};
@@ -68,9 +67,10 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 								}) 
 								.rollup(agg_pial1a)
 								.entries(data);
-
-				//console.log(nested) 
 				
+				nested = nested.slice(1); // remove N/A 
+
+								
 				x.domain(nested.map(function(d) { return d['key']; }));
 				y.domain([0, d3.max(nested, function(d) { return d.values['frequency']; })]);
 				
@@ -95,7 +95,7 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 });
 
 function type(d) {
-				d.frequency = +d.frequency;
+				d.pial1a = +d.pial1a;
 				return d;
 }
 				
