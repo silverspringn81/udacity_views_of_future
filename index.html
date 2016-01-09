@@ -7,7 +7,7 @@
 }
 
 .axis {
-				font: 10px sans-serif;
+				font: 12px sans-serif;
 }
 
 .axis path,
@@ -21,6 +21,14 @@
 				display: none;
 }
 
+.title {
+				font: bolder 18px sans-serif;
+}
+
+.description {
+				font: italic 13px sans-serif;
+
+}
 
 </style>
 <body>
@@ -88,7 +96,10 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 
 				svg.append("g")
 								.attr("class", "y axis")
-								.call(yAxis);
+								.call(yAxis)
+								.append("text")
+								.attr("transform", "rotate(-90)")
+								.attr("y", 6);
 				
 				svg.selectAll(".bar")
 								.data(nested)
@@ -98,7 +109,24 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 								.attr("width", x.rangeBand())
 								.attr("y", function(d) { return y(d.values['frequency']/total); })
 								.attr("height", function(d) { return height - y(d.values['frequency']/total); });
-				
+
+				svg.append("g")
+								.attr("class", "title")
+								.append("text")
+								.attr("x", width/2)
+								.attr("y", 0-(margin.top/2))
+								.attr("text-anchor", "middle")
+								.text("Attitudes toward long-term changes");
+
+				svg.append("g")
+								.attr("class", "description")
+                .append("text")
+                .attr("x", width/2)
+                .attr("y", 0)
+                .attr("text-anchor", "middle")
+                .text("% of U.S. adults who feel technological changes will lead to a mostly better or worse future")
+								
+								
 });
 
 function type(d) {
