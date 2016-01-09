@@ -87,7 +87,7 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 				console.log(nested);
 				
 				x.domain(nested.map(function(d) { return d.values['view']; }));
-				y.domain([0, d3.max(nested, function(d) { return d.values['frequency']/total ; })]);
+				y.domain([0, d3.max(nested, function(d) { return d.values['frequency']/total*100 ; })]);
 				
 				svg.append("g")
 								.attr("class", "x axis")
@@ -107,8 +107,8 @@ d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 								.attr("class", "bar")
 								.attr("x", function(d) { return x(d.values['view']); })
 								.attr("width", x.rangeBand())
-								.attr("y", function(d) { return y(d.values['frequency']/total); })
-								.attr("height", function(d) { return height - y(d.values['frequency']/total); });
+								.attr("y", function(d) { return y(d.values['frequency']/total*100); })
+								.attr("height", function(d) { return height - y(d.values['frequency']/total*100); });
 
 				svg.append("g")
 								.attr("class", "title")
