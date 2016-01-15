@@ -30,122 +30,210 @@
 
 }
 
+.axis--x path {
+				display: none;
+}
+
+
 </style>
 <body>
-<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script> 
-<script>
+	<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+	<script>
 
-var margin = {top: 100, right: 300, bottom: 100, left:100 },
-				width = 960 - margin.left - margin.right,
-				height = 500 - margin.top - margin.bottom;
+	var margin = {top: 100, right: 300, bottom: 100, left:100 },
+					width = 960 - margin.left - margin.right,
+					height = 500 - margin.top - margin.bottom;
 
-var x = d3.scale.ordinal()
-				.rangeRoundBands([0, width], .3);
+	var x = d3.scale.ordinal()
+					.rangeRoundBands([0, width], .3);
 
-var y = d3.scale.linear()
-				.range([height, 0]);
+	var y = d3.scale.linear()
+					.range([height, 0]);
 
-var xAxis = d3.svg.axis()
-				.scale(x)
-				.orient("bottom");
+	var xAxis = d3.svg.axis()
+					.scale(x)
+					.orient("bottom");
 
-var yAxis = d3.svg.axis()
-				.scale(y)
-				.orient("left");
+	var yAxis = d3.svg.axis()
+					.scale(y)
+					.orient("left");
 
-var chart1 = d3.select("body").append("svg")
-				.attr("width", width + margin.left + margin.right)
-				.attr("height", height + margin.top + margin.bottom)
-				.append("g")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	var chart1 = d3.select("body").append("svg")
+					.attr("width", width + margin.left + margin.right)
+					.attr("height", height + margin.top + margin.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
-				if (error) throw error;
+	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
+					if (error) throw error;
 
-				function agg_pial1a(leaves) {
-								var count = leaves.length;
-								return {
-												'frequency': count,
-								};
-				}
-				
-				var nested = d3.nest()
-								.key(function(d) {
-												return d['pial1a'];
-								}) 
-								.rollup(agg_pial1a)
-								.entries(data);
-				
-				nested = nested.slice(1); // remove N/A 
-								
-				var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
-				
-				var views = ["Mostly better", "Mostly worse", "Don't know", "Refused"];
+					function agg_pial1a(leaves) {
+									var count = leaves.length;
+									return {
+													'frequency': count,
+									};
+					}
+					
+					var nested = d3.nest()
+									.key(function(d) {
+													return d['pial1a'];
+									}) 
+									.rollup(agg_pial1a)
+									.entries(data);
+					
+					nested = nested.slice(1); // remove N/A 
+					
+					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
+					
+					var views = ["Mostly better", "Mostly worse", "Don't know", "Refused"];
 
-				nested.forEach(function(value, index) { value.values['view'] = views[index];}); // rename elements
-				
-				console.log(nested);
-				
-				x.domain(nested.map(function(d) { return d.values['view']; }));
-				//y.domain([0, d3.max(nested, function(d) { return d.values['frequency']/total*100 ; })]);
-				y.domain([0, 100]);
-				
-				chart1.append("g")
-								.attr("class", "x axis")
-								.attr("transform", "translate(0," + height + ")")
-								.call(xAxis);
+					nested.forEach(function(value, index) { value.values['view'] = views[index];}); // rename elements
+					
+					x.domain(nested.map(function(d) { return d.values['view']; }));
+					y.domain([0, 100]);
+					
+					chart1.append("g")
+									.attr("class", "x axis")
+									.attr("transform", "translate(0," + height + ")")
+									.call(xAxis);
 
-				chart1.append("g")
-								.attr("class", "y axis")
-								.call(yAxis)
-				
-				chart1.selectAll(".bar")
-								.data(nested)
-								.enter().append("rect")
-								.attr("class", "bar")
-								.attr("x", function(d) { return x(d.values['view']); })
-								.attr("width", x.rangeBand())
-								.attr("y", function(d) { return y(d.values['frequency']/total*100); })
-								.attr("height", function(d) { return height - y(d.values['frequency']/total*100); });
+					chart1.append("g")
+									.attr("class", "y axis")
+									.call(yAxis)
+									
+									chart1.selectAll(".bar")
+									.data(nested)
+									.enter().append("rect")
+									.attr("class", "bar")
+									.attr("x", function(d) { return x(d.values['view']); })
+									.attr("width", x.rangeBand())
+									.attr("y", function(d) { return y(d.values['frequency']/total*100); })
+									.attr("height", function(d) { return height - y(d.values['frequency']/total*100); });
 
-				chart1.append("g")
-								.attr("class", "title")
-								.append("text")
-								.attr("x", width/2)
-								.attr("y", 0-(margin.top/2))
-								.attr("text-anchor", "middle")
-								.text("Attitudes toward long-term changes");
+					chart1.append("g")
+									.attr("class", "title")
+									.append("text")
+									.attr("x", width/2)
+									.attr("y", 0-(margin.top/2))
+									.attr("text-anchor", "middle")
+									.text("Attitudes toward long-term changes");
 
-				chart1.append("g")
-								.attr("class", "description")
-                .append("text")
-                .attr("x", width/2)
-                .attr("y", 0-(margin.top/4))
-                .attr("text-anchor", "middle")
-                .text("% of U.S. adults who feel technological changes will lead to a mostly better or worse future")
-								
-});
+					chart1.append("g")
+									.attr("class", "description")
+									.append("text")
+									.attr("x", width/2)
+									.attr("y", 0-(margin.top/4))
+									.attr("text-anchor", "middle")
+									.text("% of U.S. adults who feel technological changes will lead to a mostly better or worse future")
+									
+	});
 
 
 
+	var margin2 = {top: 100, right: 300, bottom: 100, left:100 },
+					width = 960 - margin2.left - margin2.right,
+					height = 500 - margin2.top - margin2.bottom;
 
+	var x2 = d3.scale.ordinal()
+					.rangeRoundBands([0, width]);
 
+	var y2 = d3.scale.linear()
+					.rangeRound([height, 0]);
 
+	var z = d3.scale.category10();
 
+	var xAxis2 = d3.svg.axis()
+					.scale(x2)
+					.orient("bottom");
 
+	var yAxis2 = d3.svg.axis()
+					.scale(y2)
+					.orient("left");
 
+	var chart2 = d3.select("body").append("svg")
+					.attr("width", width + margin2.left + margin2.right)
+					.attr("height", height + margin2.top + margin2.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
+	var income_range = ["<$30K", "$30-49.9K", "$50-74.9K", "$75K+", "Refused"];
+	var pial1a_range = ["N/A", "Better", "Worse", "Don't know", "Refused"];
 
+	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
+					if (error) throw error;
 
+					function agg_pial1a(leaves) {
+									var count = leaves.length; 
+									return {
+													'frequency': count,
+									};
+					}
 
+					var nested = d3.nest()
+									.key(function(d) {
+													return d['income'];
+									})
+									.key(function(d) {
+													return d['pial1a'];
+									})
+									.rollup(agg_pial1a)
+									.entries(data);
 
+					console.log(nested);				
 
+					var layers = d3.layout.stack()(pial1a_range.map(function(v, i) { 
+									return income_range.map(function(w, j) {
+													var num = 0;
+													if (i > 0 && nested[j].values[i] != undefined){
+																	num = nested[j].values[i].values['frequency']
+													};
+													return {x: w, y: num };
+									});
+					}));
 
-function type(d) {
-				d.pial1a = +d.pial1a;
-				return d;
-}
-				
+					layers = layers.slice(1)
+
+					layers[0].map(function(d) { console.log(d.x); });
+
+					x2.domain(layers[0].map(function(d) { return d.x; }));
+					y2.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y0 + d.y ; })]).nice();
+					
+					var layer = chart2.selectAll(".layer")
+									.data(layers)
+									.enter().append("g")
+									.attr("class", "layer")
+									.style("fill", function(d, i) {
+													return z(i);
+									}
+									);
+
+					layer.selectAll("rect")
+									.data(function(d) { return d; })
+									.enter().append("rect")
+									.attr("x", function(d) { return x2(d.x); })
+									.attr("y", function(d) {
+													return y2(d.y + d.y0);
+									})
+									.attr("height", function(d) { return y2(d.y0) - y2(d.y + d.y0); })
+									.attr("width", x2.rangeBand()-1);
+					
+					chart2.append("g")
+									.attr("class", "axis axis--x")
+									.attr("transform", "translate(0," + height + ")")
+									.call(xAxis2);
+
+					chart2.append("g")
+									.attr("class", "axis axis--y")
+									.attr("transform", "translate(" + width + ",0)")
+									.call(yAxis2);
+	});
+
+	function type(d) {
+					d.pial1a = +d.pial1a;
+					d.income = +d.income;
+					
+					return d;
+	}
 </script>
-
+	
 
