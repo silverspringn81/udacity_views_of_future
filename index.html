@@ -30,10 +30,6 @@
 
 }
 
-.axis--x path {
-				display: none;
-}
-
 
 </style>
 <body>
@@ -99,9 +95,9 @@
 
 					chart1.append("g")
 									.attr("class", "y axis")
-									.call(yAxis)
+									.call(yAxis);
 									
-									chart1.selectAll(".bar")
+					chart1.selectAll(".bar")
 									.data(nested)
 									.enter().append("rect")
 									.attr("class", "bar")
@@ -223,14 +219,14 @@
 									.attr("width", x2.rangeBand()-1);
 					
 					chart2.append("g")
-									.attr("class", "axis axis--x")
+									.attr("class", "x axis")
 									.attr("transform", "translate(0," + height + ")")
 									.call(xAxis2);
 
 					chart2.append("g")
-									.attr("class", "axis axis--y")
-									.attr("transform", "translate(" + width + ",0)")
+									.attr("class", "y axis")
 									.call(yAxis2);
+
 	});
 
 	function type(d) {
