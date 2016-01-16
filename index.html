@@ -156,7 +156,7 @@
 					.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
 	var income_range = ["Less than $30,000", "$30,000 to $49,999", "$50,000 to $74.999", "$75,000 or more", "Refused"];
-	var pial1a_range = ["N/A", "Better", "Worse", "Don't know", "Refused"];
+	var pial1a_range = ["N/A", "Mostly better", "Mostly worse", "Don't know", "Refused"];
 
 	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 					if (error) throw error;
