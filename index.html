@@ -30,6 +30,9 @@
 
 }
 
+.legend {
+				font: 12px sans-serif;
+}
 
 </style>
 <body>
@@ -243,6 +246,30 @@
 									.attr("text-anchor", "middle")
 									.text("% within each income group who feel technological changes will lead to a mostly better or worse future");
 					
+					var legend = chart2.selectAll(".legend")
+									.data(z.domain().slice().reverse())
+									.enter().append("g")
+									.attr("class", "legend")
+									.attr("transform", function(d, i) {
+													return "translate(0," + i * 20 + ")"; });
+
+					legend.append("rect")
+									.attr("x", width - 5)
+									.attr("width", 18)
+									.attr("height", 18)
+									.style("fill", z);
+
+					legend.append("text")
+									.attr("x", width + 20)
+									.attr("y", 9)
+									.attr("dy", ".35em")
+									.style("text-anchor", "start")
+									.text(function(d) { 
+													return pial1a_range[d+1]; 
+									});
+
+
+
 	});
 
 
