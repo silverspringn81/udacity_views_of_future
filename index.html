@@ -179,24 +179,24 @@
 									.rollup(agg_pial1a)
 									.entries(data);
 
-					console.log(nested);				
-
+					
 					var layers = d3.layout.stack()(pial1a_range.map(function(v, i) { 
 									return income_range.map(function(w, j) {
 													var num = 0;
 													if (i > 0 && nested[j].values[i] != undefined){
 																	num = nested[j].values[i].values['frequency']
+																	
 													};
 													return {x: w, y: num };
 									});
 					}));
 
+
+					
 					layers = layers.slice(1)
-
-					layers[0].map(function(d) { console.log(d.x); });
-
+									
 					x2.domain(layers[0].map(function(d) { return d.x; }));
-					y2.domain([0, d3.max(layers[layers.length - 1], function(d) { return d.y0 + d.y ; })]).nice();
+					y2.domain([0, 100]);
 					
 					var layer = chart2.selectAll(".layer")
 									.data(layers)
@@ -206,15 +206,20 @@
 													return z(i);
 									}
 									);
-
+					
 					layer.selectAll("rect")
-									.data(function(d) { return d; })
+									.data(function(d) {
+													return d;
+									})
 									.enter().append("rect")
 									.attr("x", function(d) { return x2(d.x); })
-									.attr("y", function(d) {
-													return y2(d.y + d.y0);
+									.attr("y", function(d, i) {
+													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+													return y2((d.y + d.y0)/total*100);
 									})
-									.attr("height", function(d) { return y2(d.y0) - y2(d.y + d.y0); })
+									.attr("height", function(d, i) {
+													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+													return y2(d.y0/total*100) - y2((d.y + d.y0)/total*100); })
 									.attr("width", x2.rangeBand()-1);
 					
 					chart2.append("g")
