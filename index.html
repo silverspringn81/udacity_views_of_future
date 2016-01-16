@@ -96,7 +96,7 @@
 					chart1.append("g")
 									.attr("class", "y axis")
 									.call(yAxis);
-									
+					
 					chart1.selectAll(".bar")
 									.data(nested)
 									.enter().append("rect")
@@ -120,7 +120,7 @@
 									.attr("x", width/2)
 									.attr("y", 0-(margin.top/4))
 									.attr("text-anchor", "middle")
-									.text("% of U.S. adults who feel technological changes will lead to a mostly better or worse future")
+									.text("% of U.S. adults who feel technological changes will lead to a mostly better or worse future");
 									
 	});
 
@@ -131,7 +131,7 @@
 					height = 500 - margin2.top - margin2.bottom;
 
 	var x2 = d3.scale.ordinal()
-					.rangeRoundBands([0, width]);
+					.rangeRoundBands([0, width], 0.3);
 
 	var y2 = d3.scale.linear()
 					.rangeRound([height, 0]);
@@ -152,7 +152,7 @@
 					.append("g")
 					.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
-	var income_range = ["<$30K", "$30-49.9K", "$50-74.9K", "$75K+", "Refused"];
+	var income_range = ["Less than $30,000", "$30,000 to $49,999", "$50,000 to $74.999", "$75,000 or more", "Refused"];
 	var pial1a_range = ["N/A", "Better", "Worse", "Don't know", "Refused"];
 
 	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
@@ -187,10 +187,8 @@
 									});
 					}));
 
-
+					layers = layers.slice(1);
 					
-					layers = layers.slice(1)
-									
 					x2.domain(layers[0].map(function(d) { return d.x; }));
 					y2.domain([0, 100]);
 					
@@ -216,17 +214,18 @@
 									.attr("height", function(d, i) {
 													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
 													return y2(d.y0/total*100) - y2((d.y + d.y0)/total*100); })
-									.attr("width", x2.rangeBand()-1);
+									.attr("width", x2.rangeBand());
 					
 					chart2.append("g")
 									.attr("class", "x axis")
 									.attr("transform", "translate(0," + height + ")")
-									.call(xAxis2);
-
+									.call(xAxis2)
+									.selectAll(".tick text")					
+									.call(wrap, x2.rangeBand());
+					
 					chart2.append("g")
 									.attr("class", "y axis")
 									.call(yAxis2);
-
 
 					chart2.append("g")
 									.attr("class", "title")
@@ -242,17 +241,43 @@
 									.attr("x", width/2)
 									.attr("y", 0-(margin.top/4))
 									.attr("text-anchor", "middle")
-									.text("% within each income group who feel technological changes will lead to a mostly better or worse future")
-
+									.text("% within each income group who feel technological changes will lead to a mostly better or worse future");
 					
 	});
 
+
+  function wrap(text, width) {
+					text.each(function() {
+									var text = d3.select(this),
+													words = text.text().split(/\s+/).reverse(),
+													word,
+													line = [],
+													lineNumber = 0,
+													lineHeight = 1.1, // ems
+													y = text.attr("y"),
+													dy = parseFloat(text.attr("dy")),
+													tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+									while (word = words.pop()) {
+													line.push(word);
+													tspan.text(line.join(" "));
+													if (tspan.node().getComputedTextLength() > width) {
+																	line.pop();
+																	tspan.text(line.join(" "));
+																	line = [word];
+																	tspan = text.append("tspan").attr("x", 0)
+																					.attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+													}
+									}
+					});
+	}
+
+	
 	function type(d) {
 					d.pial1a = +d.pial1a;
 					d.income = +d.income;
 					
 					return d;
 	}
-</script>
+	</script>
 	
 
