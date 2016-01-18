@@ -398,7 +398,6 @@
 									bars.transition()
 													.duration(1000)
 													.attr("x", function(d) {
-																	//console.log(d.values['view']);
 																	return x3(d.values['view']); })
 													.attr("width", x3.rangeBand())
 													.attr("y", function(d) { return y3(d.values['frequency']/total*100); })
@@ -432,7 +431,10 @@
 									})
 									.attr("rx",5)
 									.attr("ry",5)
-									.attr("fill","whitesmoke");
+									.attr("fill", function(d, i) {
+													if (i == 0) { return "lightBlue"; }
+													else { return "whitesmoke"; }
+									});
 					
 					//adding text to each button group, centered within the button rect
 					buttonGroups.append("text")
@@ -446,23 +448,24 @@
 									.attr("fill","black")
 									.text(
 													function(d) {
-																	//console.log(d);
 																	return d;
 													});             
 					
 					buttonGroups.on("click", function(d, i) {
-									//console.log(i)
-																	d3.select("g.button")
+									
+									buttonGroups.select("rect")
 													.transition()
 													.duration(500)
-													.style("color", "black")
-													.style("background", "rgb(251, 201, 127)");
+													.attr("fill", "whitesmoke");
 									
 									d3.select(this)
+													.select("rect")
 													.transition()
 													.duration(500)
-													.style("background", "lightBlue")
-													.style("color", "white");
+													.attr("fill", "lightBlue");
+
+									console.log(this);
+									
 									update(i);
 					});
 					
