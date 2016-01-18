@@ -6,6 +6,10 @@
 				fill: steelblue;
 }
 
+.bar:hover{
+				fill: orange;
+}
+
 .axis {
 				font: 12px sans-serif;
 }
@@ -29,6 +33,10 @@
 				font: italic 13px sans-serif;
 }
 
+.layer:hover {
+				fill: black;
+}
+
 .legend {
 				font: 12px sans-serif;
 }
@@ -37,9 +45,15 @@
 				font: 12px sans-serif;
 }
 
+.d3-tip {
+				font: 12px sans-serif;
+}
+
+
 </style>
 <body>
 	<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 	<script>
 
 // Chart 1 : PIAL 1A relative bar chart
@@ -85,12 +99,24 @@
 									.entries(data);
 					
 					nested = nested.slice(1); // remove data with pial1a = N/A 
-					
-					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
+
+					// total counts
+					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); 
 					
 					var views = ["Mostly better", "Mostly worse", "Don't know", "Refused"]; 
 
-					nested.forEach(function(value, index) { value.values['view'] = views[index];}); // rename elements from index to view
+					// rename elements from index to view
+					nested.forEach(function(value, index) { value.values['view'] = views[index];}); 
+					
+					var tip = d3.tip()
+									.attr("class", "d3-tip")
+									.offset([-10, 0])
+									.html(function(d) {
+													return "<span style='color:black'>" +
+																	(d.values['frequency']/total*100).toFixed(1)  + "%</span>";
+									});
+
+					chart1.call(tip);
 					
 					x.domain(nested.map(function(d) { return d.values['view']; }));
 					y.domain([0, 100]);
@@ -111,8 +137,10 @@
 									.attr("x", function(d) { return x(d.values['view']); })
 									.attr("width", x.rangeBand())
 									.attr("y", function(d) { return y(d.values['frequency']/total*100); })
-									.attr("height", function(d) { return height - y(d.values['frequency']/total*100); });
-
+									.attr("height", function(d) { return height - y(d.values['frequency']/total*100); })
+									.on('mouseover', tip.show)
+									.on('mouseout', tip.hide);
+					
 					chart1.append("g")
 									.attr("class", "title")
 									.append("text")
@@ -181,8 +209,9 @@
 									})
 									.rollup(agg_pial1a)
 									.entries(data);
-					
-					var layers = d3.layout.stack()(pial1a_range.map(function(v, i) { // make array defining layers
+
+					// make array defining layers
+					var layers = d3.layout.stack()(pial1a_range.map(function(v, i) {
 									return income_range.map(function(w, j) {
 													var num = 0;
 													if (i > 0 && nested[j].values[i] != undefined){
@@ -219,6 +248,30 @@
 													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
 													return y2(d.y0/total*100) - y2((d.y + d.y0)/total*100); })
 									.attr("width", x2.rangeBand());
+
+					layer.selectAll("rect")
+									.on("mouseover", function(d, i) {
+													var xPos = parseFloat(d3.select(this).attr("x"));
+													var yPos = parseFloat(d3.select(this).attr("y"));
+													var height = parseFloat(d3.select(this).attr("height"));
+													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+													
+													d3.select(this).attr("stroke", "purple").attr("stroke-width", 2.0);
+
+													chart2.append("text")
+																	.attr("x", xPos + 5)
+																	.attr("y", yPos + height/2)
+																	.attr("class", "d3-tip")
+																	.text((d.y/total*100).toFixed(1) + "%");
+													
+									})
+									.on("mouseout", function() {
+													chart2.select(".d3-tip").remove();
+													d3.select(this).attr("stroke-width", 0);
+									})
+
+					
+
 					
 					chart2.append("g")
 									.attr("class", "x axis")
@@ -331,6 +384,17 @@
 					
 					nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements 
 
+					var tip = d3.tip()
+									.attr("class", "d3-tip")
+									.offset([-10, 0])
+									.html(function(d) {
+													return "<span style='color:black'>" +
+																	(d.values['frequency']/total*100).toFixed(1) + "%</span>";
+									});
+					
+					chart3.call(tip);
+
+										
 					x3.domain(nested.map(function(d) { return d.values['view']; }));
 					y3.domain([0, 100]);
 
@@ -352,8 +416,11 @@
 									.attr("x", function(d) { return x3(d.values['view']); })
 									.attr("width", x3.rangeBand())
 									.attr("y", function(d) { return y3(d.values['frequency']/total*100); })
-									.attr("height", function(d) { return height - y3(d.values['frequency']/total*100); });
-
+									.attr("height", function(d) { return height - y3(d.values['frequency']/total*100); })
+									.on("mouseover", tip.show)
+									.on("mouseout", tip.hide);
+					
+					
 					chart3.append("g")
 									.attr("class", "title")
 									.append("text")
@@ -388,9 +455,7 @@
 									bars.enter().append("rect")
 													.attr("class", "bar");
 
-								  bars.exit().remove();
-
-									bars.transition()
+								 	bars.transition()
 													.duration(1000)
 													.attr("x", function(d) {
 																	return x3(d.values['view']); })
@@ -456,7 +521,6 @@
 													.duration(500)
 													.attr("fill", "lightBlue");
 
-									console.log(this);
 									update(i);
 					});					
 	});
