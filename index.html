@@ -2,6 +2,24 @@
 <meta charset="utf-8">
 <style>
 
+body {
+				margin-left: 100px;
+				margin-top: 30px;
+				margin-right: 200px;				
+}
+
+h2 {
+				white-space: nowrap;
+				margin-bottom: 5px;
+}
+
+div.summary {
+				width: 780px;
+				font-size: 14px;
+				margin-left: 5px;
+
+}
+
 .bar {
 				fill: steelblue;
 }
@@ -56,6 +74,17 @@
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 	<script>
 
+	d3.select("body")
+					.append("h2")
+					.text("Visualizations of U.S. adults' views of technology and the future");
+
+	d3.select("body")
+					.append("div")
+					.attr("class", "summary")
+					.append("p")
+					.text("Three visualizations are provided here to show some of the main conclusions derived from a 2014 survey by the Pew Research Center and Smithsonian magazine, which asked U.S. adults about their predictions on a range of potential technological developments and their views on the resulting future.")
+
+	
 // Chart 1 : Interactive bar chart for PIAL 2 with animation 
 	var margin1 = {top: 100, right: 300, bottom: 100, left:100 },
 					width = 960 - margin1.left - margin1.right,
@@ -164,9 +193,9 @@
 					chart1.append("g")
 									.attr("class", "description")
 									.append("text")
-									.attr("x", width/2)
+									.attr("x", 0)
 									.attr("y", 0-(margin1.top/4))
-									.attr("text-anchor", "middle")
+									.attr("text-anchor", "left")
 									.text("% of U.S. adults who feel the five technologies will/won't happen in the next 50 years");
 
 					// update bar chart according to the button clicked
@@ -353,9 +382,9 @@
 					chart2.append("g")
 									.attr("class", "description")
 									.append("text")
-									.attr("x", width/2)
+									.attr("x", 0)
 									.attr("y", 0-(margin2.top/4))
-									.attr("text-anchor", "middle")
+									.attr("text-anchor", "left")
 									.text("% of U.S. adults who feel technological changes will lead to a mostly better or worse future");
 									
 	});
@@ -496,9 +525,9 @@
 					chart3.append("g")
 									.attr("class", "description")
 									.append("text")
-									.attr("x", width/2)
+									.attr("x", 0)
 									.attr("y", 0-(margin3.top/4))
-									.attr("text-anchor", "middle")
+									.attr("text-anchor", "left")
 									.text("% within each household income group who feel technological changes will lead to a mostly better or worse future");
 					
 					var legend = chart3.selectAll(".legend")
