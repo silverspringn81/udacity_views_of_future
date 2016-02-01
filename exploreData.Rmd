@@ -285,7 +285,189 @@ ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) +
   facet_grid(. ~ income, labeller=income_labeller)
 ```
 
-## Design Plan
+## Distribution of Income
+```{r income}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=as.ordered(income), y=..count../sum(..count..)), data=sub_vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("income") +
+  scale_x_discrete(breaks=c(1,2,3,4,9), 
+                   labels=c("< $30K", "$30-49.4K", "$50-74.9K", "75K+",
+                            "Refused"))
+```
+
+## PIAL2-a vs. PIAL1A
+```{r 2a-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial2a),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Computers like human will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))+
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL2-b vs. PIAL1A
+```{r 2b-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial2b),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Lab-made organs will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))+
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL2-c vs. PIAL1A
+```{r 2c-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial2c),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Colonies on another planet will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))+
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL2-d vs. PIAL1A
+```{r 2d-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial2d),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Weather control will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))+
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL2-e vs. PIAL1A
+```{r 2e-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial2e),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Teleportation will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))+
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL4-a: Do you eat meat or not that was grown in a lab?
+```{r 4a}
+# 1.Yes 2.No 8.Don't know 9. Refused
+ggplot(aes(x=as.ordered(pial4a), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Eat meat that was grown in a lab") +
+  scale_x_discrete(breaks=c(1,2,8,9), labels=c("Yes", "No", "Don't know", "Refused"))
+```
+
+## PIAL4-b: Do you ride or not in a driverless car?
+```{r 4b}
+# 1.Yes 2.No 8.Don't know 9. Refused
+ggplot(aes(x=as.ordered(pial4b), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Ride in a driverless car") +
+  scale_x_discrete(breaks=c(1,2,8,9), labels=c("Yes", "No", "Don't know", "Refused"))
+```
+
+## PIAL4-c: Do you get or not a brain implant to improve your memory or mental capacity?
+```{r 4c}
+# 1.Yes 2.No 8.Don't know 9. Refused
+ggplot(aes(x=as.ordered(pial4c), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Get a brain implant to improve your memory or mental capacity") +
+  scale_x_discrete(breaks=c(1,2,8,9), labels=c("Yes", "No", "Don't know", "Refused"))
+```
+
+## PIAL4-a vs. 1-a
+```{r 4a-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial4a),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Eat meat that was grown in a lab") +
+  scale_x_discrete(breaks=c(1,2,8,9), 
+                   labels=c("YES", "No", "Don't know", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL4-b vs. 1-a
+```{r 4b-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial4b),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Ride in a driverless car") +
+  scale_x_discrete(breaks=c(1,2,8,9), 
+                   labels=c("YES", "No", "Don't know", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL4-c vs. 1-a
+```{r 4c-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial4c),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Get a brain implant to improve your memory or mental capacity") +
+  scale_x_discrete(breaks=c(1,2,8,9), 
+                   labels=c("YES", "No", "Don't know", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL3-a vs. 1-a
+```{r 3a-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial3a),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Lifelike robots are a change for better/worse?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), 
+                   labels=c("Better", "Worse", "Good and Bad" , "Don't know", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL3-b vs. 1-a
+```{r 3b-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial3b),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Drones are a change for Better or Worse?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), 
+                   labels=c("Better", "Worse", "Good and Bad" , "Don't know", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL3-c vs. 1-a
+```{r 3c-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial3c),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Wearable devices are a change for Better or Worse?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), 
+                   labels=c("Better", "Worse", "Good and Bad" , "Don't know", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## PIAL3-d vs. 1-a
+```{r 3d-1a}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(pial3d),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("Altering DNA is a change for Better or Worse?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), 
+                   labels=c("Better", "Worse", "Good and Bad" , "Don't know", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+
+
+
+## Design Plan (Initial)
 
 1. Histogram showing the relative frequency of views on the future.
 
@@ -293,6 +475,16 @@ ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) +
 
 3. Animating histogram showing the relative frequency of views on each technology.
 You can interactively select a technology and see how the views change.
+
+## Design Plan (Update)
+
+1. Histogram showing the relative frequency of views on the future.
+
+2. Histogram showing the relative frequency of income combined with future vs. income stacked bar plot. People with higher income are more positive about the future.
+
+3. Histograms showing the relative frequency of attitudes toward each technology (PIAL4a-c) combined with a line graph showing the relative frequency of views on the future.
+
+
 
 
 
