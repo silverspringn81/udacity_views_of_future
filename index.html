@@ -51,6 +51,10 @@ div.summary {
 				font: italic 13px sans-serif;
 }
 
+.checkbox {
+				font: 13px sans-serif;
+}
+
 .layer:hover {
 				fill: black;
 }
@@ -223,6 +227,7 @@ div.summary {
 	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 					if (error) throw error;
 
+					
 					function agg_pial1a(leaves) { // count frequency of each view on pial1a
 									var count = leaves.length; 
 									return {
@@ -255,7 +260,9 @@ div.summary {
 					
 					x3.domain(layers[0].map(function(d) { return d.x; }));
 					y3.domain([0, 100]);
-					
+
+
+					// define color for stacked bar
 					var layer = chart3.selectAll(".layer")
 									.data(layers)
 									.enter().append("g")
@@ -263,7 +270,8 @@ div.summary {
 									.style("fill", function(d, i) {
 													return z(i);
 									});
-					
+
+					// set rect for stacked bar 
 					layer.selectAll("rect")
 									.data(function(d) {
 													return d;
@@ -279,6 +287,7 @@ div.summary {
 													return y3(d.y0/total*100) - y3((d.y + d.y0)/total*100); })
 									.attr("width", x3.rangeBand());
 
+					// mouseover
 					layer.selectAll("rect")
 									.on("mouseover", function(d, i) {
 													var xPos = parseFloat(d3.select(this).attr("x"));
@@ -299,8 +308,6 @@ div.summary {
 													chart3.select(".d3-tip").remove();
 													d3.select(this).attr("stroke-width", 0);
 									})
-
-					
 
 					
 					chart3.append("g")
@@ -351,6 +358,38 @@ div.summary {
 									.text(function(d) { 
 													return pial1a_range[d+1]; 
 									});
+
+
+					options = ["Show distribution of income"];
+
+					var foreign = chart3.selectAll("foreignObject")
+									.data(options)
+									.enter().append("g")
+									.attr("class", "checkbox");
+					
+					foreign.append("foreignObject")
+									.attr("x", width - 5)
+									.attr("y", function(d, i) {return 20*i + 100;})
+									.html("<form><input type=checkbox id=check></input></form>");
+
+					foreign.append("text")
+									.attr("x", width + 20)
+									.attr("y", function(d, i) {return 20*i + 110;})
+									.attr("text-anchor","left")
+									.attr("dominant-baseline","central")
+									.attr("fill","black")
+									.text(
+													function(d) {
+																	return d;
+													});
+
+					d3.selectAll("input").on("change", change);
+
+					function change() {
+									console.log("change!");
+					}
+					
+					
 	});
 
 	// Chart 1 : Interactive bar chart for PIAL 2 with animation 
