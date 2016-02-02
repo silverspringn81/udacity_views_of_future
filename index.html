@@ -84,208 +84,8 @@ div.summary {
 					.append("p")
 					.text("Three visualizations are provided here to show some of the main conclusions derived from a 2014 survey by the Pew Research Center and Smithsonian magazine, which asked U.S. adults about their predictions on a range of potential technological developments and their views on the resulting future.")
 
-	
-// Chart 1 : Interactive bar chart for PIAL 2 with animation 
-	var margin1 = {top: 100, right: 300, bottom: 100, left:100 },
-					width = 960 - margin1.left - margin1.right,
-					height = 500 - margin1.top - margin1.bottom;
 
-	var x1 = d3.scale.ordinal()
-					.rangeRoundBands([0, width], .3);
-
-	var y1 = d3.scale.linear()
-					.range([height, 0]);
-
-	var xAxis1 = d3.svg.axis()
-					.scale(x1)
-					.orient("bottom");
-
-	var yAxis1 = d3.svg.axis()
-					.scale(y1)
-					.orient("left");
-
-	var chart1 = d3.select("body").append("svg")
-					.attr("width", width + margin1.left + margin1.right)
-					.attr("height", height + margin1.top + margin1.bottom)
-					.append("g")
-					.attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
-
-	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
-					if (error) throw error;
-
-					function agg_pial(leaves) { // count frequency of each view on pial2a-2e
-									var count = leaves.length;
-									return {
-													'frequency': count,
-									};
-					}
-
-					// pial2a as a default  
-					var nested = d3.nest() 
-									.key(function(d) {
-													return d['pial2a'];
-									})
-									.rollup(agg_pial)
-									.entries(data);
-
-					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
-
-					var views = ["Definitely happen", "Probably happen", "Probably NOT happen", "Definitely NOT happen",
-									"Already happened", "Don't know", "Refused"];
-
-					var technologies = [
-									"Computers create art as well as human do", 
-									"Lab-grown custom organs for transplant",
-									"Humans will have long term space colonies",
-									"Humans will control the weather",
-									"Scientists will have solved teleportation"
-					]
-
-					var pial2s = ["pial2a", "pial2b", "pial2c", "pial2d", "pial2e"];
-					
-					nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements 
-
-					var tip = d3.tip()
-									.attr("class", "d3-tip")
-									.offset([-10, 0])
-									.html(function(d) {
-													return "<span style='color:black'>" +
-																	(d.values['frequency']/total*100).toFixed(1) + "%</span>";
-									});
-					
-					chart1.call(tip);
-
-										
-					x1.domain(nested.map(function(d) { return d.values['view']; }));
-					y1.domain([0, 100]);
-
-					chart1.append("g")
-									.attr("class", "x axis")
-									.attr("transform", "translate(0," + height + ")")
-									.call(xAxis1)
-									.selectAll(".tick text")
-									.call(wrap, x1.rangeBand()+10);
-
-					chart1.append("g")
-									.attr("class", "y axis")
-									.call(yAxis1);
-
-					chart1.selectAll(".bar")
-									.data(nested)
-									.enter().append("rect")
-									.attr("class", "bar")
-									.attr("x", function(d) { return x1(d.values['view']); })
-									.attr("width", x1.rangeBand())
-									.attr("y", function(d) { return y1(d.values['frequency']/total*100); })
-									.attr("height", function(d) { return height - y1(d.values['frequency']/total*100); })
-									.on("mouseover", tip.show)
-									.on("mouseout", tip.hide);
-					
-					
-					chart1.append("g")
-									.attr("class", "title")
-									.append("text")
-									.attr("x", width/2)
-									.attr("y", 0-(margin1.top/2))
-									.attr("text-anchor", "middle")
-									.text("Over 50% think lab organs and creative computers will happen");
-
-					chart1.append("g")
-									.attr("class", "description")
-									.append("text")
-									.attr("x", 0)
-									.attr("y", 0-(margin1.top/4))
-									.attr("text-anchor", "left")
-									.text("% of U.S. adults who feel the five technologies will/won't happen in the next 50 years");
-
-					// update bar chart according to the button clicked
-					function update(i_technology) {
-									var update_nested = d3.nest()
-													.key(function(d) {
-													 				return d[pial2s[i_technology]];
-													})
-													.rollup(agg_pial)
-													.entries(data);
-
-									var update_total = d3.sum(update_nested, function(d) { return d.values['frequency']; }); // total counts
-									update_nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements
-
-									var bars = chart1.selectAll('.bar')
-													.data(update_nested);
-									
-									bars.enter().append("rect")
-													.attr("class", "bar");
-
-								 	bars.transition()
-													.duration(1000)
-													.attr("x", function(d) {
-																	return x1(d.values['view']); })
-													.attr("width", x1.rangeBand())
-													.attr("y", function(d) { return y1(d.values['frequency']/total*100); })
-													.attr("height", function(d) { return height - y1(d.values['frequency']/total*100); });
-					}
-
-					// add buttons (ref. http://www.nikhil-nathwani.com/blog/posts/radio/radio.html)
-					var allButtons = chart1.append("g")
-									.attr("id", "allButtons");
-					
-					var buttonGroups = allButtons.selectAll("g.button")
-									.data(technologies)
-									.enter()
-									.append("g")
-									.attr("class", "button")
-									.style("cursor", "pointer");
-					
-					var bWidth= 280; 
-					var bHeight= 25; 
-					var bSpace= 5; 
-					
-					buttonGroups.append("rect")
-									.attr("class","buttonRect")
-									.attr("width",bWidth)
-									.attr("height",bHeight)
-									.attr("x", width - 230)
-									.attr("y", function(d,i) {
-													return 10 + (bHeight +bSpace)*i;
-									})
-									.attr("rx",5)
-									.attr("ry",5)
-									.attr("fill", function(d, i) {
-													if (i == 0) { return "lightBlue"; }
-													else { return "whitesmoke"; }
-									});
-					
-					buttonGroups.append("text")
-									.attr("class","buttonText")
-									.attr("x", width - 220)
-									.attr("y",function(d,i) {
-													return 10 + (bHeight+bSpace)*i + bHeight/2;
-									})
-									.attr("text-anchor","left")
-									.attr("dominant-baseline","central")
-									.attr("fill","black")
-									.text(
-													function(d) {
-																	return d;
-													});             
-
-					// update button colors and call function to update bar chart according to the button clicked
-					buttonGroups.on("click", function(d, i) {
-									buttonGroups.select("rect")
-													.transition()
-													.duration(500)
-													.attr("fill", "whitesmoke");
-									
-									d3.select(this)
-													.select("rect")
-													.transition()
-													.duration(500)
-													.attr("fill", "lightBlue");
-
-									update(i);
-					});					
-	});
-	
+                                                                                                                                                                                     
 // Chart 2 : PIAL 1A relative bar chart
 	var margin2 = {top: 100, right: 300, bottom: 100, left:100 },
 					width = 960 - margin2.left - margin2.right,
@@ -553,8 +353,206 @@ div.summary {
 									});
 	});
 
+	// Chart 1 : Interactive bar chart for PIAL 2 with animation 
+	var margin1 = {top: 100, right: 300, bottom: 100, left:100 },
+					width = 960 - margin1.left - margin1.right,
+					height = 500 - margin1.top - margin1.bottom;
 
-	
+	var x1 = d3.scale.ordinal()
+					.rangeRoundBands([0, width], .3);
+
+	var y1 = d3.scale.linear()
+					.range([height, 0]);
+
+	var xAxis1 = d3.svg.axis()
+					.scale(x1)
+					.orient("bottom");
+
+	var yAxis1 = d3.svg.axis()
+					.scale(y1)
+					.orient("left");
+
+	var chart1 = d3.select("body").append("svg")
+					.attr("width", width + margin1.left + margin1.right)
+					.attr("height", height + margin1.top + margin1.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+
+	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
+					if (error) throw error;
+
+					function agg_pial(leaves) { // count frequency of each view on pial2a-2e
+									var count = leaves.length;
+									return {
+													'frequency': count,
+									};
+					}
+
+					// pial2a as a default  
+					var nested = d3.nest() 
+									.key(function(d) {
+													return d['pial2a'];
+									})
+									.rollup(agg_pial)
+									.entries(data);
+
+					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
+
+					var views = ["Definitely happen", "Probably happen", "Probably NOT happen", "Definitely NOT happen",
+									"Already happened", "Don't know", "Refused"];
+
+					var technologies = [
+									"Computers create art as well as human do", 
+									"Lab-grown custom organs for transplant",
+									"Humans will have long term space colonies",
+									"Humans will control the weather",
+									"Scientists will have solved teleportation"
+					]
+
+					var pial2s = ["pial2a", "pial2b", "pial2c", "pial2d", "pial2e"];
+					
+					nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements 
+
+					var tip = d3.tip()
+									.attr("class", "d3-tip")
+									.offset([-10, 0])
+									.html(function(d) {
+													return "<span style='color:black'>" +
+																	(d.values['frequency']/total*100).toFixed(1) + "%</span>";
+									});
+					
+					chart1.call(tip);
+
+										
+					x1.domain(nested.map(function(d) { return d.values['view']; }));
+					y1.domain([0, 100]);
+
+					chart1.append("g")
+									.attr("class", "x axis")
+									.attr("transform", "translate(0," + height + ")")
+									.call(xAxis1)
+									.selectAll(".tick text")
+									.call(wrap, x1.rangeBand()+10);
+
+					chart1.append("g")
+									.attr("class", "y axis")
+									.call(yAxis1);
+
+					chart1.selectAll(".bar")
+									.data(nested)
+									.enter().append("rect")
+									.attr("class", "bar")
+									.attr("x", function(d) { return x1(d.values['view']); })
+									.attr("width", x1.rangeBand())
+									.attr("y", function(d) { return y1(d.values['frequency']/total*100); })
+									.attr("height", function(d) { return height - y1(d.values['frequency']/total*100); })
+									.on("mouseover", tip.show)
+									.on("mouseout", tip.hide);
+					
+					
+					chart1.append("g")
+									.attr("class", "title")
+									.append("text")
+									.attr("x", width/2)
+									.attr("y", 0-(margin1.top/2))
+									.attr("text-anchor", "middle")
+									.text("Over 50% think lab organs and creative computers will happen");
+
+					chart1.append("g")
+									.attr("class", "description")
+									.append("text")
+									.attr("x", 0)
+									.attr("y", 0-(margin1.top/4))
+									.attr("text-anchor", "left")
+									.text("% of U.S. adults who feel the five technologies will/won't happen in the next 50 years");
+
+					// update bar chart according to the button clicked
+					function update(i_technology) {
+									var update_nested = d3.nest()
+													.key(function(d) {
+													 				return d[pial2s[i_technology]];
+													})
+													.rollup(agg_pial)
+													.entries(data);
+
+									var update_total = d3.sum(update_nested, function(d) { return d.values['frequency']; }); // total counts
+									update_nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements
+
+									var bars = chart1.selectAll('.bar')
+													.data(update_nested);
+									
+									bars.enter().append("rect")
+													.attr("class", "bar");
+
+								 	bars.transition()
+													.duration(1000)
+													.attr("x", function(d) {
+																	return x1(d.values['view']); })
+													.attr("width", x1.rangeBand())
+													.attr("y", function(d) { return y1(d.values['frequency']/total*100); })
+													.attr("height", function(d) { return height - y1(d.values['frequency']/total*100); });
+					}
+
+					// add buttons (ref. http://www.nikhil-nathwani.com/blog/posts/radio/radio.html)
+					var allButtons = chart1.append("g")
+									.attr("id", "allButtons");
+					
+					var buttonGroups = allButtons.selectAll("g.button")
+									.data(technologies)
+									.enter()
+									.append("g")
+									.attr("class", "button")
+									.style("cursor", "pointer");
+					
+					var bWidth= 280; 
+					var bHeight= 25; 
+					var bSpace= 5; 
+					
+					buttonGroups.append("rect")
+									.attr("class","buttonRect")
+									.attr("width",bWidth)
+									.attr("height",bHeight)
+									.attr("x", width - 230)
+									.attr("y", function(d,i) {
+													return 10 + (bHeight +bSpace)*i;
+									})
+									.attr("rx",5)
+									.attr("ry",5)
+									.attr("fill", function(d, i) {
+													if (i == 0) { return "lightBlue"; }
+													else { return "whitesmoke"; }
+									});
+					
+					buttonGroups.append("text")
+									.attr("class","buttonText")
+									.attr("x", width - 220)
+									.attr("y",function(d,i) {
+													return 10 + (bHeight+bSpace)*i + bHeight/2;
+									})
+									.attr("text-anchor","left")
+									.attr("dominant-baseline","central")
+									.attr("fill","black")
+									.text(
+													function(d) {
+																	return d;
+													});             
+
+					// update button colors and call function to update bar chart according to the button clicked
+					buttonGroups.on("click", function(d, i) {
+									buttonGroups.select("rect")
+													.transition()
+													.duration(500)
+													.attr("fill", "whitesmoke");
+									
+									d3.select(this)
+													.select("rect")
+													.transition()
+													.duration(500)
+													.attr("fill", "lightBlue");
+
+									update(i);
+					});					
+	});
 
 	
 	// wrap long text (ref. http://bl.ocks.org/mbostock/7555321)
