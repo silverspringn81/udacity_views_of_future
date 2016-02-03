@@ -51,7 +51,7 @@ div.summary {
 				font: italic 13px sans-serif;
 }
 
-.checkbox {
+.radio {
 				font: 13px sans-serif;
 }
 
@@ -360,18 +360,25 @@ div.summary {
 									});
 
 
-					options = ["Show distribution of income"];
+					options = ["Income vs. Views", "Income Distribution"];
 
 					var foreign = chart3.selectAll("foreignObject")
 									.data(options)
 									.enter().append("g")
-									.attr("class", "checkbox");
+									.attr("class", "radio");
 					
 					foreign.append("foreignObject")
 									.attr("x", width - 5)
 									.attr("y", function(d, i) {return 20*i + 100;})
-									.html("<form><input type=checkbox id=check></input></form>");
-
+									.html(function(d, i) {
+													if (i == 0) {
+																	return "<input type=radio name=mode id=radio value=inc-view checked></input>";
+													}
+													else {
+																	return "<input type=radio name=mode id=radio value=income></input>";
+													};
+									})
+									
 					foreign.append("text")
 									.attr("x", width + 20)
 									.attr("y", function(d, i) {return 20*i + 110;})
@@ -387,6 +394,7 @@ div.summary {
 
 					function change() {
 									console.log("change!");
+									console.log(this.value);
 					}
 					
 					
