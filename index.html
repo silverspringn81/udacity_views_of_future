@@ -228,7 +228,7 @@ div.summary {
 					if (error) throw error;
 
 					
-					function agg_pial1a(leaves) { // count frequency of each view on pial1a
+					function agg(leaves) { // count frequency of each view on pial1a
 									var count = leaves.length; 
 									return {
 													'frequency': count,
@@ -242,9 +242,16 @@ div.summary {
 									.key(function(d) {
 													return d['pial1a'];
 									})
-									.rollup(agg_pial1a)
+									.rollup(agg)
 									.entries(data);
 
+					var nested_i = d3.nest()
+									.key(function(d) {
+													return d['income'];
+									})
+									.rollup(agg)
+									.entries(data);
+					
 					// make array defining layers
 					var layers = d3.layout.stack()(pial1a_range.map(function(v, i) {
 									return income_range.map(function(w, j) {
@@ -395,7 +402,26 @@ div.summary {
 					function change() {
 									console.log("change!");
 									console.log(this.value);
+									if (this.value === "income") transitionBar();
+									else transitionStacked();
 					}
+
+					function transitionBar() {
+
+
+
+
+					}
+					
+
+
+
+
+
+					
+
+
+
 					
 					
 	});
