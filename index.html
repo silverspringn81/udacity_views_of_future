@@ -332,17 +332,17 @@ div.summary {
 									.attr("class", "title")
 									.append("text")
 									.attr("x", width/2)
-									.attr("y", 0-(margin3.top/2))
+									.attr("y", 0 - margin3.top/1.3)
 									.attr("text-anchor", "middle")
 									.text("Higher-income Americans have more positive views");
 
-					chart3.append("g")
-									.attr("class", "description")
-									.append("text")
-									.attr("x", 0)
-									.attr("y", 0-(margin3.top/4))
-									.attr("text-anchor", "left")
-									.text("% within each household income group who feel technological changes will lead to a mostly better or worse future");
+					//chart3.append("g")
+					//				.attr("class", "description")
+					//				.append("text")
+					//				.attr("x", 0)
+					//				.attr("y", 0-(margin3.top/4))
+					//				.attr("text-anchor", "left")
+					//				.text("% within each household income group who feel technological changes will lead to a mostly better or worse future");
 					
 					var legend = chart3.selectAll(".legend")
 									.data(z.domain().slice().reverse())
@@ -367,7 +367,8 @@ div.summary {
 									});
 
 
-					options = ["Income vs. Views", "Income Distribution"];
+					options = ["% within each household income group who feel technological changes will lead to a mostly better or worse future",
+									"See distribution of household income of the respondents "];
 
 					var foreign = chart3.selectAll("foreignObject")
 									.data(options)
@@ -375,8 +376,9 @@ div.summary {
 									.attr("class", "radio");
 					
 					foreign.append("foreignObject")
-									.attr("x", width - 5)
-									.attr("y", function(d, i) {return 20*i + 100;})
+									.attr("x", -50)
+									.attr("y", function(d, i) {
+													return 0- (margin3.top/1.6) + 25*i;})
 									.html(function(d, i) {
 													if (i == 0) {
 																	return "<input type=radio name=mode id=radio value=inc-view checked></input>";
@@ -384,11 +386,13 @@ div.summary {
 													else {
 																	return "<input type=radio name=mode id=radio value=income></input>";
 													};
-									})
+									});
 									
 					foreign.append("text")
-									.attr("x", width + 20)
-									.attr("y", function(d, i) {return 20*i + 110;})
+									.attr("class", "description")									
+									.attr("x", -25)
+									.attr("y", function(d, i) {
+													return 0- (margin3.top/1.9) + 25*i ;})
 									.attr("text-anchor","left")
 									.attr("dominant-baseline","central")
 									.attr("fill","black")
@@ -406,23 +410,117 @@ div.summary {
 									else transitionStacked();
 					}
 
+					var total = d3.sum(nested_i, function(d) {return d.values['frequency']; });
+					nested_i.forEach(function(value, index) { value.values['income'] = income_range[index]; });
+
+					var tip = d3.tip()
+									.attr("class", "d3-tip")
+									.offset([-10, 0])
+									.html(function(d) {
+													return "<span style='color:black'>" +
+																(d.values['frequency']/total*100).toFixed(1)  + "%</span>";
+									});
+
+					chart3.call(tip);
+
 					function transitionBar() {
+									chart3.selectAll(".layer")
+								  				.remove();
 
+									chart3.selectAll(".legend")
+													.remove();
+									
+									chart3.selectAll(".bar")
+													.data(nested_i)
+													.enter().append("rect")
+													.attr("class", "bar")
+													.attr("x", function(d) { return x3(d.values['income']); })
+													.attr("width", x3.rangeBand())
+													.attr("y", function(d) { return y3(d.values['frequency']/total*100); })
+													.attr("height", function(d) { return height - y3(d.values['frequency']/total*100); });
 
-
-
-					}
+									chart3.selectAll(".bar")
+													.on('mouseover', tip.show)
+													.on('mouseout', tip.hide);
+									
+					};
 					
+					function transitionStacked() {
+									chart3.selectAll(".bar")
+													.remove();
 
 
+									// define color for stacked bar
+									var layer = chart3.selectAll(".layer")
+													.data(layers)
+													.enter().append("g")
+													.attr("class", "layer")
+													.style("fill", function(d, i) {
+																	return z(i);
+																	                  });
+
+									// set rect for stacked bar
+									layer.selectAll("rect")
+													.data(function(d) {
+																	return d;
+													})
+													.enter().append("rect")
+													.attr("x", function(d) { return x3(d.x); })
+													.attr("y", function(d, i) {
+																	var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+																	return y3((d.y + d.y0)/total*100);
+													})
+													.attr("height", function(d, i) {
+																	var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+																	return y3(d.y0/total*100) - y3((d.y + d.y0)/total*100); })
+													.attr("width", x3.rangeBand());
+									
+									// mouseover
+									layer.selectAll("rect")
+													.on("mouseover", function(d, i) {
+																	var xPos = parseFloat(d3.select(this).attr("x"));
+																	var yPos = parseFloat(d3.select(this).attr("y"));
+																	var height = parseFloat(d3.select(this).attr("height"));
+																	var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+																	
+																	d3.select(this).attr("stroke", "purple").attr("stroke-width", 2.0);
+																	
+																	chart3.append("text")
+																					.attr("x", xPos + 5)
+																					.attr("y", yPos + height/2)
+																					.attr("class", "d3-tip")
+																					.text((d.y/total*100).toFixed(1) + "%");
+																	
+													})
+													.on("mouseout", function() {
+																	chart3.select(".d3-tip").remove();
+																	d3.select(this).attr("stroke-width", 0);
+													});
 
 
-
-					
-
-
-
-					
+									var legend = chart3.selectAll(".legend")
+													.data(z.domain().slice().reverse())
+													.enter().append("g")
+													.attr("class", "legend")
+													.attr("transform", function(d, i) {
+																	return "translate(0," + i * 20 + ")"; });
+									
+									legend.append("rect")
+													.attr("x", width - 5)
+													.attr("width", 18)
+													.attr("height", 18)
+													.style("fill", z);
+									
+									legend.append("text")
+													.attr("x", width + 20)
+													.attr("y", 9)
+													.attr("dy", ".35em")
+													.style("text-anchor", "start")
+													.text(function(d) {
+																	return pial1a_range[d+1];
+													});
+									
+					};
 					
 	});
 
