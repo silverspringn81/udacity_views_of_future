@@ -69,6 +69,11 @@ div.summary {
 				stroke-width: 1.3px;
 }
 
+.datapoint {
+				r: 4;
+				fill: red;
+}
+
 .buttonText{
 				font: 12px sans-serif;
 }
@@ -662,7 +667,16 @@ div.summary {
 					chart1.append("path")
 									.attr("class", "line")
 									.attr("d", line(betters));
-									
+
+
+					chart1.selectAll(".dot")
+									.data(betters)
+									.enter().append("circle")
+									.attr("class", "datapoint")
+									.attr("cx", function(d) { return x1(d.x) + x1.rangeBand()/2; })
+									.attr("cy", function(d) { return y1(d.y); });
+
+					
 					
 					chart1.append("g")
 									.attr("class", "title")
@@ -680,6 +694,9 @@ div.summary {
 									.attr("text-anchor", "left")
 									.text("% of U.S. adults who feel the five technologies will/won't happen in the next 50 years");
 
+
+
+					
 					// update bar chart according to the button clicked
 					function update(i_technology) {
 									var update_nested = d3.nest()
@@ -759,7 +776,19 @@ div.summary {
 									lines.transition()
 													.duration(1000)
 													.attr("d", line(update_betters));
-									
+
+
+									var dots = chart1.selectAll('.datapoint')
+													.data(update_betters);
+
+									dots.enter().append("circle")
+													.attr("class", "datapoint");
+
+									dots.transition()
+													.duration(1000)
+													.attr("cx", function(d) { return x1(d.x) + x1.rangeBand()/2; })
+													.attr("cy", function(d) { return y1(d.y); });
+
 									
 					}
 
