@@ -69,7 +69,7 @@ div.summary {
 				stroke-width: 1.3px;
 }
 
-.datapoint {
+.dataPoint {
 				r: 4;
 				fill: red;
 }
@@ -89,6 +89,7 @@ div.summary {
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 	<script>
 
+	// Page title and summary
 	d3.select("body")
 					.append("h2")
 					.text("Visualizations of U.S. adults' views of technology and the future");
@@ -97,11 +98,17 @@ div.summary {
 					.append("div")
 					.attr("class", "summary")
 					.append("p")
-					.text("Three visualizations are provided here to show some of the main conclusions derived from a 2014 survey by the Pew Research Center and Smithsonian magazine, which asked U.S. adults about their predictions on a range of potential technological developments and their views on the resulting future.")
+					.text("Three visualizations are provided here to show some of the main conclusions derived from a 2014 survey by the Pew Research Center and Smithsonian magazine, which asked 490 U.S. adults about their predictions on a range of potential technological developments and their views on the resulting future.");
 
 
-                                                                                                                                                                                     
-// Chart 2 : PIAL 1A relative bar chart
+	function agg(leaves) { // count frequency of each leaves
+					var count = leaves.length;
+					return {
+									'frequency': count,
+					};
+	}
+	                                                                                                                                                                                     
+  // Chart 1 : Future views (Bar chart)
 	var margin1 = {top: 100, right: 300, bottom: 100, left:100 },
 					width = 960 - margin1.left - margin1.right,
 					height = 500 - margin1.top - margin1.bottom;
@@ -129,30 +136,24 @@ div.summary {
 	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 					if (error) throw error;
 
-					function agg_pial1a(leaves) { // count frequency of each view on pial1a
-									var count = leaves.length;
-									return {
-													'frequency': count,
-									};
-					}
-					
-					var nested = d3.nest()
+					// aggregate by pial1a
+					var nested = d3.nest() 
 									.key(function(d) {
 													return d['pial1a'];
 									}) 
-									.rollup(agg_pial1a)
+									.rollup(agg)
 									.entries(data);
 					
 					nested = nested.slice(1); // remove data with pial1a = N/A 
 
 					// total counts
 					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); 
-					
-					var views = ["Mostly better", "Mostly worse", "Don't know", "Refused"]; 
 
 					// rename elements from index to view
+					var views = ["Mostly better", "Mostly worse", "Don't know", "Refused"]; 
 					nested.forEach(function(value, index) { value.values['view'] = views[index];}); 
-					
+
+					// for mouseover effect
 					var tip = d3.tip()
 									.attr("class", "d3-tip")
 									.offset([-10, 0])
@@ -162,7 +163,8 @@ div.summary {
 									});
 
 					chart1.call(tip);
-					
+
+					// draw chart
 					x1.domain(nested.map(function(d) { return d.values['view']; }));
 					y1.domain([0, 100]);
 					
@@ -185,7 +187,8 @@ div.summary {
 									.attr("height", function(d) { return height - y1(d.values['frequency']/total*100); })
 									.on('mouseover', tip.show)
 									.on('mouseout', tip.hide);
-					
+
+					// chart title and description
 					chart1.append("g")
 									.attr("class", "title")
 									.append("text")
@@ -205,7 +208,7 @@ div.summary {
 	});
 
 
-// Chart 3 : Income vs. PIAL 1A relative stacked bar chart
+  // Chart 2 : Income vs. future views (Stacked bar chart)
 	var margin2 = {top: 100, right: 300, bottom: 100, left:100 },
 					width = 960 - margin2.left - margin2.right,
 					height = 500 - margin2.top - margin2.bottom;
@@ -232,20 +235,14 @@ div.summary {
 					.append("g")
 					.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
+	// arrays for converting index to category name
 	var income_range = ["Less than $30,000", "$30,000 to $49,999", "$50,000 to $74.999", "$75,000 or more", "Refused"];
 	var pial1a_range = ["N/A", "Mostly better", "Mostly worse", "Don't know", "Refused"];
 
 	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 					if (error) throw error;
 
-					
-					function agg(leaves) { // count frequency of each view on pial1a
-									var count = leaves.length; 
-									return {
-													'frequency': count,
-									};
-					}
-
+					// aggregate data by income and pial1a for stacked bar chart
 					var nested = d3.nest()
 									.key(function(d) {
 													return d['income'];
@@ -255,7 +252,8 @@ div.summary {
 									})
 									.rollup(agg)
 									.entries(data);
-
+					
+					// aggregate data by income for bar chart
 					var nested_i = d3.nest()
 									.key(function(d) {
 													return d['income'];
@@ -263,7 +261,7 @@ div.summary {
 									.rollup(agg)
 									.entries(data);
 					
-					// make array defining layers
+					// make array defining layers for stacked bar chart
 					var layers = d3.layout.stack()(pial1a_range.map(function(v, i) {
 									return income_range.map(function(w, j) {
 													var num = 0;
@@ -275,7 +273,8 @@ div.summary {
 					}));
 
 					layers = layers.slice(1); // remove data with pial1a = N/A
-					
+
+					// draw chart
 					x2.domain(layers[0].map(function(d) { return d.x; }));
 					y2.domain([0, 100]);
 
@@ -305,7 +304,7 @@ div.summary {
 													return y2(d.y0/total*100) - y2((d.y + d.y0)/total*100); })
 									.attr("width", x2.rangeBand());
 
-					// mouseover
+					// mouseover effect
 					layer.selectAll("rect")
 									.on("mouseover", function(d, i) {
 													var xPos = parseFloat(d3.select(this).attr("x"));
@@ -339,6 +338,7 @@ div.summary {
 									.attr("class", "y axis")
 									.call(yAxis2);
 
+					// add title
 					chart2.append("g")
 									.attr("class", "title")
 									.append("text")
@@ -347,6 +347,7 @@ div.summary {
 									.attr("text-anchor", "middle")
 									.text("Higher-income Americans have more positive views");
 
+					// add legend 
 					var legend = chart2.selectAll(".legend")
 									.data(z.domain().slice().reverse())
 									.enter().append("g")
@@ -369,7 +370,7 @@ div.summary {
 													return pial1a_range[d+1]; 
 									});
 
-
+					// define radio buttons for options which switch stacked bar to bar and vice versa
 					options = ["% within each household income group who feel technological changes will lead to a mostly better or worse future",
 									"See distribution of household income of the respondents "];
 
@@ -404,29 +405,32 @@ div.summary {
 																	return d;
 													});
 
+					// update graph according to radio button selected 
 					d3.selectAll("input").on("change", change);
-
 					function change() {
-									console.log("change!");
-									console.log(this.value);
 									if (this.value === "income") transitionBar();
 									else transitionStacked();
 					}
 
-					var total = d3.sum(nested_i, function(d) {return d.values['frequency']; });
-					nested_i.forEach(function(value, index) { value.values['income'] = income_range[index]; });
-
-					var tip = d3.tip()
-									.attr("class", "d3-tip")
-									.offset([-10, 0])
-									.html(function(d) {
-													return "<span style='color:black'>" +
-																(d.values['frequency']/total*100).toFixed(1)  + "%</span>";
-									});
-
-					chart2.call(tip);
-
+					// render bar chart
 					function transitionBar() {
+									
+									var total = d3.sum(nested_i, function(d) {return d.values['frequency']; });
+
+									//rename index to category name
+									nested_i.forEach(function(value, index) { value.values['income'] = income_range[index]; });
+
+									//for mouseover effect
+									var tip = d3.tip()
+													.attr("class", "d3-tip")
+													.offset([-10, 0])
+													.html(function(d) {
+																	return "<span style='color:black'>" +
+																	(d.values['frequency']/total*100).toFixed(1)  + "%</span>";
+													});
+									
+									chart2.call(tip);
+									
 									chart2.selectAll(".layer")
 								  				.remove();
 
@@ -447,7 +451,8 @@ div.summary {
 													.on('mouseout', tip.hide);
 									
 					};
-					
+
+					// render stacked bar
 					function transitionStacked() {
 									chart2.selectAll(".bar")
 													.remove();
@@ -478,7 +483,7 @@ div.summary {
 																	return y2(d.y0/total*100) - y2((d.y + d.y0)/total*100); })
 													.attr("width", x2.rangeBand());
 									
-									// mouseover
+									// mouseover effect
 									layer.selectAll("rect")
 													.on("mouseover", function(d, i) {
 																	var xPos = parseFloat(d3.select(this).attr("x"));
@@ -500,7 +505,7 @@ div.summary {
 																	d3.select(this).attr("stroke-width", 0);
 													});
 
-
+									// render legend
 									var legend = chart2.selectAll(".legend")
 													.data(z.domain().slice().reverse())
 													.enter().append("g")
@@ -527,7 +532,7 @@ div.summary {
 					
 	});
 
-	// Chart 1 : Interactive bar chart for PIAL 2 with animation 
+	// Chart 3 : Predictions on specific technology vs. future views (Bar with line chart)
 	var margin3 = {top: 140, right: 300, bottom: 100, left:100 },
 					width = 960 - margin3.left - margin3.right,
 					height = 540 - margin3.top - margin3.bottom;
@@ -546,11 +551,6 @@ div.summary {
 					.scale(y3)
 					.orient("left");
 
-	var line3 = d3.svg.line()
-					.interpolate("basis")
-					//.x(function(d) { return x(d.date); })
-					.y(function(d) { return y3(d)})
-	
 	var chart3 = d3.select("body").append("svg")
 					.attr("width", width + margin3.left + margin3.right)
 					.attr("height", height + margin3.top + margin3.bottom)
@@ -560,21 +560,15 @@ div.summary {
 	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
 					if (error) throw error;
 
-					function agg_pial(leaves) { // count frequency of each view on pial2a-2e
-									var count = leaves.length;
-									return {
-													'frequency': count,
-									};
-					}
-
-					// pial2a as a default  
+					// aggregate data by pial2a as the default bar chart
 					var nested = d3.nest() 
 									.key(function(d) {
 													return d['pial2a'];
 									})
-									.rollup(agg_pial)
+									.rollup(agg)
 									.entries(data);
 
+					// aggregate data by pial2a and pial1a as the default line chart
 					var nested_v = d3.nest()
 									.key(function(d) {
 													return d['pial2a'];
@@ -582,12 +576,13 @@ div.summary {
 									.key(function(d) {
 													return d['pial1a'];
 									})			
-									.rollup(agg_pial)
+									.rollup(agg)
 									.entries(data);
 
 
 					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
 
+					// arrays for category names
 					var views = ["Definitely happen", "Probably happen", "Probably NOT happen", "Definitely NOT happen",
 									"Already happened", "Don't know", "Refused"];
 
@@ -601,6 +596,7 @@ div.summary {
 
 					var pial2s = ["pial2a", "pial2b", "pial2c", "pial2d", "pial2e"];
 
+					// array containing data for line chart (% within each prediction group who expect a mostly better future)
 					var betters = nested_v.map(function(d, i) {
 									var tot = d3.sum(d.values,
 													function(d, i) {
@@ -612,9 +608,9 @@ div.summary {
 									return {x: views[i] , y: d.values[1].values['frequency']/tot * 100};
 					});
 
-					
 					nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements 
 
+					// for mouseover effects
 					var tip = d3.tip()
 									.attr("class", "d3-tip")
 									.offset([-10, 0])
@@ -633,7 +629,8 @@ div.summary {
 
 					chart3.call(tip);
 					chart3.call(tip2);
-										
+
+					// draw charts
 					x3.domain(nested.map(function(d) { return d.values['view']; }));
 					y3.domain([0, 100]);
 
@@ -648,6 +645,7 @@ div.summary {
 									.attr("class", "y axis")
 									.call(yAxis3);
 
+					// bar chart
 					chart3.selectAll(".bar")
 									.data(nested)
 									.enter().append("rect")
@@ -659,7 +657,7 @@ div.summary {
 									.on("mouseover", tip.show)
 									.on("mouseout", tip.hide);
 					
-
+					// line chart
 					var line = d3.svg.line()
 									.x(function(d) { return x3(d.x) + x3.rangeBand()/2; })
 									.y(function(d) { return y3(d.y); });
@@ -672,12 +670,13 @@ div.summary {
 					chart3.selectAll(".dot")
 									.data(betters)
 									.enter().append("circle")
-									.attr("class", "datapoint")
+									.attr("class", "dataPoint")
 									.attr("cx", function(d) { return x3(d.x) + x3.rangeBand()/2; })
 									.attr("cy", function(d) { return y3(d.y); })
 									.on("mouseover", tip2.show)
 									.on("mouseout", tip2.hide);
-					
+
+					// graph title
 					chart3.append("g")
 									.attr("class", "title")
 									.append("text")
@@ -686,9 +685,10 @@ div.summary {
 									.attr("text-anchor", "middle")
 									.text("Over 50% think lab organs and creative computers will happen");
 
+					// legend 
 					legend_text = [
 									"% of U.S. adults who feel the five technologies will/won't happen in the next 50 years",
-									"% within each prediction group who feel technological changes will lead to a mostly better or worse future"
+									"% within each prediction group who feel technological changes will lead to a mostly better future"
 					]
 
 					var legend = chart3.selectAll(".legend")
@@ -697,7 +697,6 @@ div.summary {
 									.append("g")
 									.attr("class", "legend")
 									.attr("transform", function(d, i) {
-													console.log(i);
 													return "translate(0," + i*20 + ")"
 									});
 					
@@ -729,15 +728,18 @@ div.summary {
 													return d;
 									});
 					
-					// update bar chart according to the button clicked
+					// update bar and line charts according to the button clicked
 					function update(i_technology) {
+
+									// for bar chart
 									var update_nested = d3.nest()
 													.key(function(d) {
 													 				return d[pial2s[i_technology]];
 													})
-													.rollup(agg_pial)
+													.rollup(agg)
 													.entries(data);
 
+									// for line chart
 									var update_nested_v = d3.nest()
 													.key(function(d) {
 																	return d[pial2s[i_technology]];
@@ -745,14 +747,14 @@ div.summary {
 													.key(function(d) {
 																	return d['pial1a'];
 													})
-													.rollup(agg_pial)
+													.rollup(agg)
 													.entries(data);
 
 
 									var update_total = d3.sum(update_nested, function(d) { return d.values['frequency']; }); // total counts
 									update_nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements
 
-
+                  // assign zero or space to missing values
 									if (update_nested[6] == undefined) {
 													update_nested[6] = {
 																	key:  "9",
@@ -766,7 +768,8 @@ div.summary {
 																	values: []
 													};
 									}
-									
+
+									// updated data array for line chart
 									var update_betters = update_nested_v.map(function(d, i) {
 													var tot = d3.sum(d.values,
 																	function(d, i) {
@@ -783,6 +786,7 @@ div.summary {
 																	}
 									});
 
+									// render bars
 									var bars = chart3.selectAll('.bar')
 													.data(update_nested);
 									
@@ -797,7 +801,7 @@ div.summary {
 													.attr("y", function(d) { return y3(d.values['frequency']/total*100); })
 													.attr("height", function(d) { return height - y3(d.values['frequency']/total*100); });
 
-
+									// render lines
 									var lines = chart3.selectAll('.line')
 													.data(update_betters);
 
@@ -809,12 +813,12 @@ div.summary {
 													.duration(1000)
 													.attr("d", line(update_betters));
 
-
-									var dots = chart3.selectAll('.datapoint')
+									// render dots on the lines
+									var dots = chart3.selectAll('.dataPoint')
 													.data(update_betters);
 
 									dots.enter().append("circle")
-													.attr("class", "datapoint");
+													.attr("class", "dataPoint");
 
 									dots.transition()
 													.duration(1000)
@@ -824,7 +828,7 @@ div.summary {
 									
 					}
 
-					// add buttons (ref. http://www.nikhil-nathwani.com/blog/posts/radio/radio.html)
+					// add buttons for five technologies (ref. http://www.nikhil-nathwani.com/blog/posts/radio/radio.html)
 					var allButtons = chart3.append("g")
 									.attr("id", "allButtons");
 					
@@ -867,7 +871,7 @@ div.summary {
 													function(d) {
 																	return d;
 													});             
-
+					// initialize chart with pial2a 
 					update(0);
 					
 					// update button colors and call function to update bar chart according to the button clicked
@@ -928,5 +932,5 @@ div.summary {
 					return d;
 	}
 	</script>
-	
+</body>	
 
