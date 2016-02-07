@@ -567,6 +567,31 @@ div.summary {
 									.rollup(agg_pial)
 									.entries(data);
 
+					var nested_v = d3.nest()
+									.key(function(d) {
+													return d['pial2a'];
+									})
+									.key(function(d) {
+													return d['pial1a'];
+									})			
+									.rollup(agg_pial)
+									.entries(data);
+
+					console.log(nested_v);
+
+					var betters = nested_v.map(function(d) {
+									var tot = d3.sum(d.values,
+													function(d, i) {
+																	//console.log(d.values['frequency']);
+																	if (i > 0) { 
+																					return d.values['frequency']; 
+																	}
+																	});
+									
+									return d.values[1].values['frequency']/tot * 100;
+					})
+									
+					
 					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
 
 					var views = ["Definitely happen", "Probably happen", "Probably NOT happen", "Definitely NOT happen",
