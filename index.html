@@ -630,9 +630,17 @@ div.summary {
 													return "<span style='color:black'>" +
 																	(d.values['frequency']/total*100).toFixed(1) + "%</span>";
 									});
-					
-					chart1.call(tip);
 
+					var tip2 = d3.tip()
+									.attr("class", "d3-tip")
+									.offset([-10, 0])
+									.html(function(d) {
+													return "<span style='color:black'>" +
+																	(d.y).toFixed(1) + "%</span>";
+													                  });
+
+					chart1.call(tip);
+					chart1.call(tip2);
 										
 					x1.domain(nested.map(function(d) { return d.values['view']; }));
 					y1.domain([0, 100]);
@@ -674,9 +682,9 @@ div.summary {
 									.enter().append("circle")
 									.attr("class", "datapoint")
 									.attr("cx", function(d) { return x1(d.x) + x1.rangeBand()/2; })
-									.attr("cy", function(d) { return y1(d.y); });
-
-					
+									.attr("cy", function(d) { return y1(d.y); })
+									.on("mouseover", tip2.show)
+									.on("mouseout", tip2.hide);
 					
 					chart1.append("g")
 									.attr("class", "title")
@@ -788,7 +796,7 @@ div.summary {
 													.duration(1000)
 													.attr("cx", function(d) { return x1(d.x) + x1.rangeBand()/2; })
 													.attr("cy", function(d) { return y1(d.y); });
-
+									
 									
 					}
 
