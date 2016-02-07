@@ -63,6 +63,12 @@ div.summary {
 				font: 12px sans-serif;
 }
 
+.line {
+				fill: none;
+				stroke: red;
+				stroke-width: 1.5px;
+}
+
 .buttonText{
 				font: 12px sans-serif;
 }
@@ -543,6 +549,11 @@ div.summary {
 					.scale(y1)
 					.orient("left");
 
+	var line1 = d3.svg.line()
+					.interpolate("basis")
+					//.x(function(d) { return x(d.date); })
+					.y(function(d) { return y1(d)})
+	
 	var chart1 = d3.select("body").append("svg")
 					.attr("width", width + margin1.left + margin1.right)
 					.attr("height", height + margin1.top + margin1.bottom)
@@ -577,21 +588,7 @@ div.summary {
 									.rollup(agg_pial)
 									.entries(data);
 
-					console.log(nested_v);
 
-					var betters = nested_v.map(function(d) {
-									var tot = d3.sum(d.values,
-													function(d, i) {
-																	//console.log(d.values['frequency']);
-																	if (i > 0) { 
-																					return d.values['frequency']; 
-																	}
-																	});
-									
-									return d.values[1].values['frequency']/tot * 100;
-					})
-									
-					
 					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
 
 					var views = ["Definitely happen", "Probably happen", "Probably NOT happen", "Definitely NOT happen",
@@ -606,6 +603,18 @@ div.summary {
 					]
 
 					var pial2s = ["pial2a", "pial2b", "pial2c", "pial2d", "pial2e"];
+
+					var betters = nested_v.map(function(d, i) {
+									var tot = d3.sum(d.values,
+													function(d, i) {
+																	if (i > 0) {  // skip data with pial1a = N/A
+																					return d.values['frequency'];
+																	}
+													});
+
+									return {x: views[i] , y: d.values[1].values['frequency']/tot * 100};
+					});
+
 					
 					nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements 
 
@@ -645,6 +654,25 @@ div.summary {
 									.on("mouseover", tip.show)
 									.on("mouseout", tip.hide);
 					
+					console.log(betters);
+
+					var line = d3.svg.line()
+									.x(function(d) { return x1(d.x) + x1.rangeBand()/2; })
+									.y(function(d) { return y1(d.y); });
+
+					chart1.append("path")
+									.attr("class", "line")
+									.attr("d", line(betters));
+									
+					//var betterline = chart1.selectAll(".line")
+					//				.data(betters)
+					//				.enter().append("g")
+
+					//betterline.append("path")
+					//				.attr("class", "line")
+					//				.attr("d", function(d) {
+					//								console.log(d);
+					//								return line1(d.values);});
 					
 					chart1.append("g")
 									.attr("class", "title")
