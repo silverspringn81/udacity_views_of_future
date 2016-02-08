@@ -1,8 +1,11 @@
-Udacity Data Analyst Nanodegree P6:
 Visualizations of U.S. adults' views of technology and the future
-Feb. 8, 2016
-Shinichiro Tanaka
 ===
+
+##Description
+Udacity Data Analyst Nanodegree P6
+
+##Author
+Shinichiro Tanaka
 
 ##Summary
 

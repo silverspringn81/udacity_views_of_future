@@ -1,0 +1,299 @@
+Analysis for Views of Science and the Future 
+========================================================
+```{r global_options, include=FALSE}
+# Set global chunk options for figure sizes and which texts should be printed
+knitr::opts_chunk$set(fig.width=5.5, fig.height=4, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=TRUE)
+```
+
+```{r message=FALSE, packages}
+# Load the packages used in the following analysis
+library(ggplot2)
+library(dplyr)
+library(GGally)
+library(scales)
+library(memisc)
+```
+
+```{r Load_the_Data}
+# Load the Data
+setwd('/Users/stanaka/Online_Courses/UDA_DataAnalyst_ND/P6/udacity_views_of_future/data')
+vdata <- read.csv('Feb_2014_Views_Future_CSV.csv', sep=',')
+```
+
+## Data Summary
+```{r Summary}
+# Show basic structures of the data set
+str(vdata)
+summary(vdata)
+```
+There are 1001 adults data in the dataset with 51 variables (psraid, sample, form, int_date, ..., standwt). 
+
+## PIAL 1A: Future will be Better or Worse?
+```{r 1a}
+# 1.Better 2.Worse 8.Don't know 9.Refused
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+#qplot(x=as.factor(pial1a) , data=vdata,
+#      xlab="pial 1a",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial1a), y=..count../sum(..count..)), data=sub_vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Future will be?") +
+  scale_x_discrete(breaks=c(1,2,8,9), labels=c("Better", "Worse", "Don't know", "Refused"))
+count(sub_vdata, pial1a == 1.0)
+```
+58.1% (285/490) think the future will be better.
+
+## PIAL 1B: Future will be Worse or Better? 
+```{r 1b}
+# 1.Worse 2.Better 8.Don't know 9.Refused
+#qplot(x=as.factor(pial1b) , data=vdata,
+#      xlab="pial 1b",
+#      ylab="count")
+sub_vdata = subset(vdata, vdata$pial1b > 0)
+ggplot(aes(x=as.ordered(pial1b), y=..count../sum(..count..)), data=sub_vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("percent") + xlab("Future will be?") +
+  scale_x_discrete(breaks=c(1,2,8,9), labels=c("Worse", "Better", "Don't know", "Refused"))
+count(sub_vdata, pial1b == 2.0)
+```
+61.4% (314/511) think the future gets better.
+
+
+## PIAL 2-a: Computers like human will happen?
+```{r 2a}
+# 1.Definitely happen 2.Probably happen 3.Probably NOT happen 4.Definitely NOT happen
+#qplot(x=as.ordered(pial2a), data=vdata,
+#      xlab="pial 2a",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial2a), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Computers like human will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))
+```
+
+## PIAL 2-b: Lab-made organs will happen?
+```{r 2b}
+# 1.Definitely happen 2.Probably happen 3.Probably NOT happen 4.Definitely NOT happen
+#qplot(x=as.ordered(pial2b), data=vdata,
+#      xlab="pial 2b",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial2b), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Lab-made organs will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))
+```
+
+## PIAL 2-c: Colonies on another planet will happen?
+```{r 2c}
+# 1.Definitely happen 2.Probably happen 3.Probably NOT happen 4.Definitely NOT happen
+#qplot(x=as.ordered(pial2c), data=vdata,
+#      xlab="pial 2c",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial2c), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Colonies on another planet will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))
+```
+
+## PIAL 2-d: Weather control will happen?
+```{r 2d}
+# 1.Definitely happen 2.Probably happen 3.Probably NOT happen 4.Definitely NOT happen
+#qplot(x=as.ordered(pial2d), data=vdata,
+#      xlab="pial 2d",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial2d), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Weather control will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))
+```
+
+## PIAL 2-e: Teleportation will happen?
+```{r 2e}
+# 1.Definitely happen 2.Probably happen 3.Probably NOT happen 4.Definitely NOT happen
+#qplot(x=as.ordered(pial2e), data=vdata,
+#      xlab="pial 2e",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial2e), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Teleportation will happen?") +
+  scale_x_discrete(breaks=c(1,2,3,4,5,8,9), 
+                   labels=c("Def. YES", "Prob. YES", "Prob. NOT", "Def. NOT",
+                            "Already", "Don't know", "Refused"))
+```
+
+## PIAL 3-a: Lifelike robots are a change for Better or Worse?
+```{r 3a}
+# 1.Better 2.Worse 3.Both good and bad 4.Don't know 5. Refused
+#qplot(x=as.ordered(pial3a), data=vdata,
+#      xlab="pial 3a",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial3a), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Lifelike robots are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused"))
+```
+
+## PIAL 3-b: Drones are a change for Better or Worse?
+```{r 3b}
+# 1.Better 2.Worse 3.Both good and bad 4.Don't know 5. Refused
+#qplot(x=as.ordered(pial3b), data=vdata,
+#      xlab="pial 3b",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial3b), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Drones are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused"))
+```
+
+## PIAL 3-c: Wearable devices are a change for Better or Worse?
+```{r 3c}
+# 1.Better 2.Worse 3.Both good and bad 4.Don't know 5. Refused
+#qplot(x=as.ordered(pial3c), data=vdata,
+#      xlab="pial 3c",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial3c), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Wearable devices are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused"))
+```
+
+## PIAL 3-d: Altering DNA is a change for Better or Worse?
+```{r 3d}
+# 1.Better 2.Worse 3.Both good and bad 4.Don't know 5. Refused
+#qplot(x=as.ordered(pial3d), data=vdata,
+#      xlab="pial 3d",
+#      ylab="count")
+ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() + 
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Altering DNA is a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused"))
+```
+
+## Future vs. Income
+```{r 1a-income}
+sub_vdata = subset(vdata, vdata$pial1a > 0)
+ggplot(aes(x=factor(income),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("relative freq.") + xlab("income") +
+  scale_x_discrete(breaks=c(1,2,3,4,9), labels=c("< $30K", "$30-49.9K", "$50-74.9K", "$75K+", "Refused")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## Future vs. Sex
+```{r 1a-sex}
+ggplot(aes(x=factor(sex),fill=factor(pial1a)), data=sub_vdata)+geom_bar(position="fill") +
+  ylab("percent") + xlab("sex") +
+  scale_x_discrete(breaks=c(1,2), labels=c("Male", "Female")) +
+  scale_fill_discrete(name="Future will be..", breaks=c(1, 2, 8, 9),
+                           labels=c("Better", "Worse", "Don't know", "Refused"))
+```
+
+## View on Technology vs. Sex
+```{r 3-sex}
+mf_labeller <- function(var, value){
+    value <- as.character(value)
+    if (var=="sex") { 
+        value[value==1] <- "Male"
+        value[value==2]   <- "Female"
+    }
+    return(value)
+}
+
+ggplot(aes(x=as.ordered(pial3a), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Lifelike robots are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+ggplot(aes(x=as.ordered(pial3b), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Drones are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+ggplot(aes(x=as.ordered(pial3c), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Wearable devices are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Altering DNA is a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ sex, labeller=mf_labeller)
+```
+
+## View on Technology vs. Income
+```{r 3-income}
+income_labeller <- function(var, value){
+    value <- as.character(value)
+    if (var=="income") { 
+        value[value==1] <- "< $30K"
+        value[value==2]   <- "$30-49.4K"
+        value[value==3] <- "$50-74.9K"
+        value[value==4]   <- "75K+"
+        value[value==9]   <- "Refused"
+    }
+    return(value)
+}
+
+ggplot(aes(x=as.ordered(pial3a), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Lifelike robots are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+ggplot(aes(x=as.ordered(pial3b), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Drones are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+ggplot(aes(x=as.ordered(pial3c), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Wearable devices are a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+ggplot(aes(x=as.ordered(pial3d), y=..count../sum(..count..)), data=vdata) + 
+  geom_histogram() +
+  scale_y_continuous(limits=c(0,1)) +
+  ylab("relative freq.") + xlab("Altering DNA is a change for?") +
+  scale_x_discrete(breaks=c(1,2,3,8,9), labels=c("Better", "Worse", "Both", "Don't know", "Refused")) +   
+  facet_grid(. ~ income, labeller=income_labeller)
+```
+
+## Design Plan
+
+1. Histogram showing the relative frequency of views on the future.
+
+2. Future vs. Income stacked bar plot. People with higher income are more positive about the future.
+
+3. Animating histogram showing the relative frequency of views on each technology.
+You can interactively select a technology and see how the views change.
+
+
+
+

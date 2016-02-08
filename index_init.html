@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+				margin-left: 100px;
+				margin-top: 30px;
+				margin-right: 200px;				
+}
+
+h2 {
+				white-space: nowrap;
+				margin-bottom: 5px;
+}
+
+div.summary {
+				width: 780px;
+				font-size: 14px;
+				margin-left: 5px;
+
+}
+
+.bar {
+				fill: steelblue;
+}
+
+.bar:hover{
+				fill: orange;
+}
+
+.axis {
+				font: 12px sans-serif;
+}
+
+.axis path,
+.axis line {
+				fill: none; 
+				stroke: #000;
+				shape-rendering: crispEdges;
+}
+
+.x.axis path {
+				display: none;
+}
+
+.title {
+				font: bolder 18px sans-serif;
+}
+
+.description {
+				font: italic 13px sans-serif;
+}
+
+.layer:hover {
+				fill: black;
+}
+
+.legend {
+				font: 12px sans-serif;
+}
+
+.buttonText{
+				font: 12px sans-serif;
+}
+
+.d3-tip {
+				font: 12px sans-serif;
+}
+
+
+</style>
+<body>
+	<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+	<script>
+
+	d3.select("body")
+					.append("h2")
+					.text("Visualizations of U.S. adults' views of technology and the future");
+
+	d3.select("body")
+					.append("div")
+					.attr("class", "summary")
+					.append("p")
+					.text("Three visualizations are provided here to show some of the main conclusions derived from a 2014 survey by the Pew Research Center and Smithsonian magazine, which asked U.S. adults about their predictions on a range of potential technological developments and their views on the resulting future.")
+
+	
+// Chart 1 : Interactive bar chart for PIAL 2 with animation 
+	var margin1 = {top: 100, right: 300, bottom: 100, left:100 },
+					width = 960 - margin1.left - margin1.right,
+					height = 500 - margin1.top - margin1.bottom;
+
+	var x1 = d3.scale.ordinal()
+					.rangeRoundBands([0, width], .3);
+
+	var y1 = d3.scale.linear()
+					.range([height, 0]);
+
+	var xAxis1 = d3.svg.axis()
+					.scale(x1)
+					.orient("bottom");
+
+	var yAxis1 = d3.svg.axis()
+					.scale(y1)
+					.orient("left");
+
+	var chart1 = d3.select("body").append("svg")
+					.attr("width", width + margin1.left + margin1.right)
+					.attr("height", height + margin1.top + margin1.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+
+	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
+					if (error) throw error;
+
+					function agg_pial(leaves) { // count frequency of each view on pial2a-2e
+									var count = leaves.length;
+									return {
+													'frequency': count,
+									};
+					}
+
+					// pial2a as a default  
+					var nested = d3.nest() 
+									.key(function(d) {
+													return d['pial2a'];
+									})
+									.rollup(agg_pial)
+									.entries(data);
+
+					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); // total counts
+
+					var views = ["Definitely happen", "Probably happen", "Probably NOT happen", "Definitely NOT happen",
+									"Already happened", "Don't know", "Refused"];
+
+					var technologies = [
+									"Computers create art as well as human do", 
+									"Lab-grown custom organs for transplant",
+									"Humans will have long term space colonies",
+									"Humans will control the weather",
+									"Scientists will have solved teleportation"
+					]
+
+					var pial2s = ["pial2a", "pial2b", "pial2c", "pial2d", "pial2e"];
+					
+					nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements 
+
+					var tip = d3.tip()
+									.attr("class", "d3-tip")
+									.offset([-10, 0])
+									.html(function(d) {
+													return "<span style='color:black'>" +
+																	(d.values['frequency']/total*100).toFixed(1) + "%</span>";
+									});
+					
+					chart1.call(tip);
+
+										
+					x1.domain(nested.map(function(d) { return d.values['view']; }));
+					y1.domain([0, 100]);
+
+					chart1.append("g")
+									.attr("class", "x axis")
+									.attr("transform", "translate(0," + height + ")")
+									.call(xAxis1)
+									.selectAll(".tick text")
+									.call(wrap, x1.rangeBand()+10);
+
+					chart1.append("g")
+									.attr("class", "y axis")
+									.call(yAxis1);
+
+					chart1.selectAll(".bar")
+									.data(nested)
+									.enter().append("rect")
+									.attr("class", "bar")
+									.attr("x", function(d) { return x1(d.values['view']); })
+									.attr("width", x1.rangeBand())
+									.attr("y", function(d) { return y1(d.values['frequency']/total*100); })
+									.attr("height", function(d) { return height - y1(d.values['frequency']/total*100); })
+									.on("mouseover", tip.show)
+									.on("mouseout", tip.hide);
+					
+					
+					chart1.append("g")
+									.attr("class", "title")
+									.append("text")
+									.attr("x", width/2)
+									.attr("y", 0-(margin1.top/2))
+									.attr("text-anchor", "middle")
+									.text("Over 50% think lab organs and creative computers will happen");
+
+					chart1.append("g")
+									.attr("class", "description")
+									.append("text")
+									.attr("x", 0)
+									.attr("y", 0-(margin1.top/4))
+									.attr("text-anchor", "left")
+									.text("% of U.S. adults who feel the five technologies will/won't happen in the next 50 years");
+
+					// update bar chart according to the button clicked
+					function update(i_technology) {
+									var update_nested = d3.nest()
+													.key(function(d) {
+													 				return d[pial2s[i_technology]];
+													})
+													.rollup(agg_pial)
+													.entries(data);
+
+									var update_total = d3.sum(update_nested, function(d) { return d.values['frequency']; }); // total counts
+									update_nested.forEach(function(value, index) { value.values['view'] = views[index]; }); // rename elements
+
+									var bars = chart1.selectAll('.bar')
+													.data(update_nested);
+									
+									bars.enter().append("rect")
+													.attr("class", "bar");
+
+								 	bars.transition()
+													.duration(1000)
+													.attr("x", function(d) {
+																	return x1(d.values['view']); })
+													.attr("width", x1.rangeBand())
+													.attr("y", function(d) { return y1(d.values['frequency']/total*100); })
+													.attr("height", function(d) { return height - y1(d.values['frequency']/total*100); });
+					}
+
+					// add buttons (ref. http://www.nikhil-nathwani.com/blog/posts/radio/radio.html)
+					var allButtons = chart1.append("g")
+									.attr("id", "allButtons");
+					
+					var buttonGroups = allButtons.selectAll("g.button")
+									.data(technologies)
+									.enter()
+									.append("g")
+									.attr("class", "button")
+									.style("cursor", "pointer");
+					
+					var bWidth= 280; 
+					var bHeight= 25; 
+					var bSpace= 5; 
+					
+					buttonGroups.append("rect")
+									.attr("class","buttonRect")
+									.attr("width",bWidth)
+									.attr("height",bHeight)
+									.attr("x", width - 230)
+									.attr("y", function(d,i) {
+													return 10 + (bHeight +bSpace)*i;
+									})
+									.attr("rx",5)
+									.attr("ry",5)
+									.attr("fill", function(d, i) {
+													if (i == 0) { return "lightBlue"; }
+													else { return "whitesmoke"; }
+									});
+					
+					buttonGroups.append("text")
+									.attr("class","buttonText")
+									.attr("x", width - 220)
+									.attr("y",function(d,i) {
+													return 10 + (bHeight+bSpace)*i + bHeight/2;
+									})
+									.attr("text-anchor","left")
+									.attr("dominant-baseline","central")
+									.attr("fill","black")
+									.text(
+													function(d) {
+																	return d;
+													});             
+
+					// update button colors and call function to update bar chart according to the button clicked
+					buttonGroups.on("click", function(d, i) {
+									buttonGroups.select("rect")
+													.transition()
+													.duration(500)
+													.attr("fill", "whitesmoke");
+									
+									d3.select(this)
+													.select("rect")
+													.transition()
+													.duration(500)
+													.attr("fill", "lightBlue");
+
+									update(i);
+					});					
+	});
+	
+// Chart 2 : PIAL 1A relative bar chart
+	var margin2 = {top: 100, right: 300, bottom: 100, left:100 },
+					width = 960 - margin2.left - margin2.right,
+					height = 500 - margin2.top - margin2.bottom;
+
+	var x2 = d3.scale.ordinal()
+					.rangeRoundBands([0, width], .3);
+
+	var y2 = d3.scale.linear()
+					.range([height, 0]);
+
+	var xAxis2 = d3.svg.axis()
+					.scale(x2)
+					.orient("bottom");
+
+	var yAxis2 = d3.svg.axis()
+					.scale(y2)
+					.orient("left");
+
+	var chart2 = d3.select("body").append("svg")
+					.attr("width", width + margin2.left + margin2.right)
+					.attr("height", height + margin2.top + margin2.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
+					if (error) throw error;
+
+					function agg_pial1a(leaves) { // count frequency of each view on pial1a
+									var count = leaves.length;
+									return {
+													'frequency': count,
+									};
+					}
+					
+					var nested = d3.nest()
+									.key(function(d) {
+													return d['pial1a'];
+									}) 
+									.rollup(agg_pial1a)
+									.entries(data);
+					
+					nested = nested.slice(1); // remove data with pial1a = N/A 
+
+					// total counts
+					var total = d3.sum(nested, function(d) { return d.values['frequency']; }); 
+					
+					var views = ["Mostly better", "Mostly worse", "Don't know", "Refused"]; 
+
+					// rename elements from index to view
+					nested.forEach(function(value, index) { value.values['view'] = views[index];}); 
+					
+					var tip = d3.tip()
+									.attr("class", "d3-tip")
+									.offset([-10, 0])
+									.html(function(d) {
+													return "<span style='color:black'>" +
+																	(d.values['frequency']/total*100).toFixed(1)  + "%</span>";
+									});
+
+					chart2.call(tip);
+					
+					x2.domain(nested.map(function(d) { return d.values['view']; }));
+					y2.domain([0, 100]);
+					
+					chart2.append("g")
+									.attr("class", "x axis")
+									.attr("transform", "translate(0," + height + ")")
+									.call(xAxis2);
+
+					chart2.append("g")
+									.attr("class", "y axis")
+									.call(yAxis2);
+					
+					chart2.selectAll(".bar")
+									.data(nested)
+									.enter().append("rect")
+									.attr("class", "bar")
+									.attr("x", function(d) { return x2(d.values['view']); })
+									.attr("width", x2.rangeBand())
+									.attr("y", function(d) { return y2(d.values['frequency']/total*100); })
+									.attr("height", function(d) { return height - y2(d.values['frequency']/total*100); })
+									.on('mouseover', tip.show)
+									.on('mouseout', tip.hide);
+					
+					chart2.append("g")
+									.attr("class", "title")
+									.append("text")
+									.attr("x", width/2)
+									.attr("y", 0-(margin2.top/2))
+									.attr("text-anchor", "middle")
+									.text("The majority are positive about long-term changes");
+
+					chart2.append("g")
+									.attr("class", "description")
+									.append("text")
+									.attr("x", 0)
+									.attr("y", 0-(margin2.top/4))
+									.attr("text-anchor", "left")
+									.text("% of U.S. adults who feel technological changes will lead to a mostly better or worse future");
+									
+	});
+
+
+// Chart 3 : Income vs. PIAL 1A relative stacked bar chart
+	var margin3 = {top: 100, right: 300, bottom: 100, left:100 },
+					width = 960 - margin3.left - margin3.right,
+					height = 500 - margin3.top - margin3.bottom;
+
+	var x3 = d3.scale.ordinal()
+					.rangeRoundBands([0, width], 0.3);
+
+	var y3 = d3.scale.linear()
+					.rangeRound([height, 0]);
+
+	var z = d3.scale.category10();
+
+	var xAxis3 = d3.svg.axis()
+					.scale(x3)
+					.orient("bottom");
+
+	var yAxis3 = d3.svg.axis()
+					.scale(y3)
+					.orient("left");
+
+	var chart3 = d3.select("body").append("svg")
+					.attr("width", width + margin3.left + margin3.right)
+					.attr("height", height + margin3.top + margin3.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
+
+	var income_range = ["Less than $30,000", "$30,000 to $49,999", "$50,000 to $74.999", "$75,000 or more", "Refused"];
+	var pial1a_range = ["N/A", "Mostly better", "Mostly worse", "Don't know", "Refused"];
+
+	d3.csv("data/Feb_2014_Views_Future_CSV.csv", type, function(error, data) {
+					if (error) throw error;
+
+					function agg_pial1a(leaves) { // count frequency of each view on pial1a
+									var count = leaves.length; 
+									return {
+													'frequency': count,
+									};
+					}
+
+					var nested = d3.nest()
+									.key(function(d) {
+													return d['income'];
+									})
+									.key(function(d) {
+													return d['pial1a'];
+									})
+									.rollup(agg_pial1a)
+									.entries(data);
+
+					// make array defining layers
+					var layers = d3.layout.stack()(pial1a_range.map(function(v, i) {
+									return income_range.map(function(w, j) {
+													var num = 0;
+													if (i > 0 && nested[j].values[i] != undefined){
+																	num = nested[j].values[i].values['frequency']
+													};
+													return {x: w, y: num };
+									});
+					}));
+
+					layers = layers.slice(1); // remove data with pial1a = N/A
+					
+					x3.domain(layers[0].map(function(d) { return d.x; }));
+					y3.domain([0, 100]);
+					
+					var layer = chart3.selectAll(".layer")
+									.data(layers)
+									.enter().append("g")
+									.attr("class", "layer")
+									.style("fill", function(d, i) {
+													return z(i);
+									});
+					
+					layer.selectAll("rect")
+									.data(function(d) {
+													return d;
+									})
+									.enter().append("rect")
+									.attr("x", function(d) { return x3(d.x); })
+									.attr("y", function(d, i) {
+													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+													return y3((d.y + d.y0)/total*100);
+									})
+									.attr("height", function(d, i) {
+													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+													return y3(d.y0/total*100) - y3((d.y + d.y0)/total*100); })
+									.attr("width", x3.rangeBand());
+
+					layer.selectAll("rect")
+									.on("mouseover", function(d, i) {
+													var xPos = parseFloat(d3.select(this).attr("x"));
+													var yPos = parseFloat(d3.select(this).attr("y"));
+													var height = parseFloat(d3.select(this).attr("height"));
+													var total = layers[layers.length-1][i].y0 + layers[layers.length-1][i].y;
+													
+													d3.select(this).attr("stroke", "purple").attr("stroke-width", 2.0);
+
+													chart3.append("text")
+																	.attr("x", xPos + 5)
+																	.attr("y", yPos + height/2)
+																	.attr("class", "d3-tip")
+																	.text((d.y/total*100).toFixed(1) + "%");
+													
+									})
+									.on("mouseout", function() {
+													chart3.select(".d3-tip").remove();
+													d3.select(this).attr("stroke-width", 0);
+									})
+
+					
+
+					
+					chart3.append("g")
+									.attr("class", "x axis")
+									.attr("transform", "translate(0," + height + ")")
+									.call(xAxis3)
+									.selectAll(".tick text")					
+									.call(wrap, x3.rangeBand());
+					
+					chart3.append("g")
+									.attr("class", "y axis")
+									.call(yAxis3);
+
+					chart3.append("g")
+									.attr("class", "title")
+									.append("text")
+									.attr("x", width/2)
+									.attr("y", 0-(margin3.top/2))
+									.attr("text-anchor", "middle")
+									.text("Higher-income Americans have more positive views");
+
+					chart3.append("g")
+									.attr("class", "description")
+									.append("text")
+									.attr("x", 0)
+									.attr("y", 0-(margin3.top/4))
+									.attr("text-anchor", "left")
+									.text("% within each household income group who feel technological changes will lead to a mostly better or worse future");
+					
+					var legend = chart3.selectAll(".legend")
+									.data(z.domain().slice().reverse())
+									.enter().append("g")
+									.attr("class", "legend")
+									.attr("transform", function(d, i) {
+													return "translate(0," + i * 20 + ")"; });
+
+					legend.append("rect")
+									.attr("x", width - 5)
+									.attr("width", 18)
+									.attr("height", 18)
+									.style("fill", z);
+
+					legend.append("text")
+									.attr("x", width + 20)
+									.attr("y", 9)
+									.attr("dy", ".35em")
+									.style("text-anchor", "start")
+									.text(function(d) { 
+													return pial1a_range[d+1]; 
+									});
+	});
+
+
+	
+
+	
+	// wrap long text (ref. http://bl.ocks.org/mbostock/7555321)
+  function wrap(text, width) { 
+					text.each(function() {
+									var text = d3.select(this),
+													words = text.text().split(/\s+/).reverse(),
+													word,
+													line = [],
+													lineNumber = 0,
+													lineHeight = 1.1, // ems
+													y = text.attr("y"),
+													dy = parseFloat(text.attr("dy")),
+													tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+									while (word = words.pop()) {
+													line.push(word);
+													tspan.text(line.join(" "));
+													if (tspan.node().getComputedTextLength() > width) {
+																	line.pop();
+																	tspan.text(line.join(" "));
+																	line = [word];
+																	tspan = text.append("tspan").attr("x", 0)
+																					.attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+													}
+									}
+					});
+					
+	}
+
+	
+	function type(d) {
+					d.pial1a = +d.pial1a;
+	        d.pial2a = +d.pial2a;
+					d.pial2b = +d.pial2b;
+					d.pial2c = +d.pial2c;
+					d.pial2d = +d.pial2d;
+					d.pial2e = +d.pial2e;
+					d.income = +d.income;
+					
+					return d;
+	}
+	</script>
+	
+
