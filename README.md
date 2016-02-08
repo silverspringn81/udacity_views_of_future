@@ -36,55 +36,66 @@ In the submission, I have included "exploreData.html" where I explored the origi
 
 I have collected feedback from three persons.
 
--Feedback #1:
+- Feedback #1:
 
 1.What do you notice in the visualization?
+
 you have clearly defined without seeing the graph what we should
 expect from the visualizations from the title, and each subheadings.
 
 2.What questions do you have about the data?
+
 why did you choose this dataset?
 
 3.What relationships do you notice?
+
 that people are positive about long-term changes, and people with higher income are happy.
 
 4.What do you think is the main takeaway from this visualization?
 
 5.Is there something you don’t understand in the graphic?
-what is the main story? is it about technology and future? Is it
-because we have better technology that we have a better future?
+
+what is the main story? is it about technology and future? Is it because we have better technology that we have a better future?
 or because we have more income that we feel better about ourselves?
 
--Feedback #2:
+- Feedback #2:
 
 1.What do you notice in the visualization?
+
 You can show how the 50-year predictions on the five technologies change by household income.  
 
 2.What questions do you have about the data?
+
 What is the sample size for the three charts?
 
 3.What relationships do you notice?
+
 There should be some correlations between 50-year predictions and the views on the long-term future. Can you show that those who have positive views on the future are also predicting that the specific technologies will happen in the next 50 years? 
 
 4.What do you think is the main takeaway from this visualization?
 
 5.Is there something you don’t understand in the graphic?
+
 You should show how the sample sizes differ in each chart explicitly. 
 
--Feedback #3:
+- Feedback #3:
 
 1.What do you notice in the visualization?
+
 Although the research by Michael Osborne predicts 47% of current jobs will be replaced by technologies in the next two decades, people have mostly positive views on the future across all income groups.
 
 2.What questions do you have about the data?
 
 3.What relationships do you notice?
+
 People tend to predict that a technology will happen with a high possibility when they are able to imagine it. (It is still hard to imagine how the technology will be like to control the weather...)  
 
 4.What do you think is the main takeaway from this visualization?
+
 Vast investment in science and technology by U.S. government are supported by people's positive views on the technological development.  
 
 5.Is there something you don’t understand in the graphic?
+
 You should include income distribution of the respondents. May be biased to higher-income? 
 
 
